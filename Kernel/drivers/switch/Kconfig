@@ -1,0 +1,35 @@
+menuconfig SWITCH
+	tristate "Switch class support"
+	help
+	  Say Y here to enable switch class support. This allows
+	  monitoring switches by userspace via sysfs and uevent.
+
+if SWITCH
+
+config SWITCH_GPIO
+	tristate "GPIO Swith support"
+	depends on GENERIC_GPIO
+	help
+	  Say Y here to enable GPIO based switch support.
+
+config SWITCH_SIO
+	tristate "SIO Swith support"
+	help
+	  Say Y here to enable SIO switch support.
+
+config SEC_HEADSET_CLASS_FOR_OMS
+	tristate "Headset class for oms"
+	help
+	  Say Y here to enable oms sysfs support.
+
+config INPUT_ZEUS_EAR_KEY
+        tristate "EAR_KEY_DRIVER"
+        help
+          Say Y here if you want to enable ear key.
+
+config EXTRA_DOCK_SPEAKER
+        tristate "EXTRA_DOCK_SPEAKER"
+        help
+          Say Y here to enable extra dock speaker support
+          
+endif # SWITCH

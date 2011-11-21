@@ -1,0 +1,14 @@
+#
+# GYRO Sensor Configuration
+#
+config INPUT_K3G
+	tristate "K3G Gyroscope driver"
+	default n
+	help
+	  This option enables gyro sensors using K3G driver
+
+config INPUT_K3G_USE_GPIO_I2C
+	tristate "K3G driver uses i2c via GPIO"
+	default n
+	help
+	  This option enables K3G sensor via GPIO 

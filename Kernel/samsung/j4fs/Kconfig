@@ -1,0 +1,71 @@
+##
+# Copyright (C) 2010, Samsung Electronics, Co., Ltd. All Rights Reserved.
+#  Written by System S/W Group, Open OS S/W R&D Team,
+#  Mobile Communication Division.
+##
+
+##
+# Project Name : Samsung J4FS Support for Linux Kernel
+#
+# Project Description :
+#
+# Comments : tabstop = 8, shiftwidth = 8, noexpandtab
+##
+
+##
+# File Name : Kconfig
+#
+# File Description :
+#
+# Author : Joo, Young Jin (#4349, youngjin79.joo@samsung.com)
+# Dept : System S/W Group (Open OS S/W R&D Team)
+# Created : 19/Sep/2010
+# Version : Baby-Raccoon
+##
+
+config SAMSUNG_J4FS
+	tristate "Samsung J4FS Support"
+	default n
+	help
+		Say Y to enable Samsung J4FS support.
+
+config SAMSUNG_J4FS_PHYSICAL_PAGE_SIZE
+	int "Physical Page Size of NAND Device"
+	default 4096
+
+config SAMSUNG_J4FS_PHYSICAL_PAGE_PER_BLOCK
+	int "Physical Pages-Per-Block Size"
+	default 64
+
+config SAMSUNG_J4FS_PARTITION_ID
+	int "PARAM Partition ID"
+	default 21
+
+choice
+	prompt "NAND Interface for J4FS"
+	depends on SAMSUNG_J4FS
+	default SAMSUNG_J4FS_USE_FSR
+
+config SAMSUGN_J4FS_USE_XSR
+	bool "J4FS use XSR Interface"
+
+config SAMSUNG_J4FS_USE_FSR
+	bool "J4FS use FSR Interface"
+
+config SAMSUNG_J4FS_USE_EMMC
+	bool "J4FS use eMMC Interface"
+
+endchoice
+
+config SAMSUNG_J4FS_BLOCK_COUNT
+	int "Number of block used for J4FS in eMMC"
+	depends on SAMSUNG_J4FS_USE_EMMC
+	default 20
+
+config SAMSUNG_J4FS_BASIC_UNIT_SIZE
+	int "Basic unit size for j4fs_mst"
+	default 2048
+
+config SAMSUNG_J4FS_BASIC_UNIT_SIZE_BITS
+	int "Basic unit size-bits for j4fs_mst"
+	default 11

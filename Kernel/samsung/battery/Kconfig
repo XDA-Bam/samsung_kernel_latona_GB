@@ -1,0 +1,13 @@
+#menu "Samsung battery driver"
+
+config SAMSUNG_BATTERY
+	tristate "SAMSUNG_BATTERY"
+	help
+	 Say Y to include support for Samsung battery driver.
+	default y
+config SAMSUNG_BATTERY_TESTMODE
+	bool "SAMSUNG_BATTERY_TESTMODE"	
+	help
+	 Say Y to test battery driver.
+	depends on SAMSUNG_BATTERY
+#endmenu

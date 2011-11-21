@@ -1,0 +1,35 @@
+##
+# Project Name : Samsung Private Third-Party Device Drivers
+#
+# Project Description :
+#
+# Comments : tabstop = 8, shiftwidth = 8, noexpandtab
+##
+
+##
+# File Name : Kconfig
+#
+# File Description :
+#
+# Author : System Platform2
+# Dept : System S/W Group (Open OS S/W R&D Team)
+# Created Date : 15/Sep/2010
+# Version : Baby-Raccoon
+##
+
+config SAMSUNG_VIBETONZ
+	tristate "Immersion touch sense driver(vibetonz)"
+	default m
+	help
+		Imersion touch sense driver(vibetonz)
+
+config SAMSUNG_VIBETONZ_GPTIMER
+	int "General Purpose Timer for VibeTonz (1 to 11)"
+	depends on SAMSUNG_VIBETONZ
+	default 10
+
+config SAMSUNG_VIBETONZ_PWM_DUTY_MAX
+	int "Maximum duty for PWM"
+	depends on SAMSUNG_VIBETONZ
+	default 580
+

@@ -1,0 +1,29 @@
+##
+# Project Name : Samsung Private Third-Party Device Drivers
+#
+# Project Description :
+#
+# Comments : tabstop = 8, shiftwidth = 8, noexpandtab
+##
+
+##
+# File Name : Kconfig
+#
+# File Description :
+#
+# Author : System Platform2
+# Dept : System S/W Group (Open OS S/W R&D Team)
+# Created Date : 16/Sep/2010
+# Version : Baby-Raccoon
+##
+
+config FMRADIO
+	tristate "Si4709 FM radio"
+	default m
+	help
+		Si4709 FM radio
+
+config FMRADIO_USE_GPIO_I2C
+	tristate "Si4709 FM radio I2C"
+	default n
+

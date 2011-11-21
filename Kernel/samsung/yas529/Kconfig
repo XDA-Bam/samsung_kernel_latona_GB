@@ -1,0 +1,28 @@
+
+config INPUT_YAS529
+	tristate "Yamaha YAS529 geomagnetic sensor"
+	default n
+	help
+		Say Y to enable YAS529 geomagnetic support.
+
+config INPUT_YAS529_POSITION
+	int "YAS529 Mounting Position on Board"
+	depends on INPUT_YAS529
+	default "0"
+	help
+	  Chip mounting position (pin 1).
+	    0: top, upper-left
+	    1: top, upper-right
+	    2: top, lower-right
+	    3: top, lower-left
+	    4: bottom, upper-left
+	    5: bottom, upper-right
+	    6: bottom, lower-right
+	    7: bottom, lower-left
+
+config INPUT_YAS529_USE_GPIO_I2C
+	tristate "Yamaha YAS529 I2C Policy"
+	default n
+	help
+		Say Y to use I2C using GPIO
+

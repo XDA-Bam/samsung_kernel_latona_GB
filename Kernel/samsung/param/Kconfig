@@ -1,0 +1,30 @@
+##
+# Copyright (C) 2010, Samsung Electronics, Co., Ltd. All Rights Reserved.
+#  Written by System S/W Group, Open OS S/W R&D Team,
+#  Mobile Communication Division.
+##
+
+##
+# Project Name : Samsung Param-Partition Support for Linux Kernel
+#
+# Project Description :
+#
+# Comments : tabstop = 8, shiftwidth = 8, noexpandtab
+##
+
+##
+# File Name : Kconfig
+#
+# File Description :
+#
+# Author : Joo, Young Jin (#4349, youngjin79.joo@samsung.com)
+# Dept : System S/W Group (Open OS S/W R&D Team)
+# Created : 19/Sep/2010
+# Version : Baby-Raccoon
+##
+
+config SAMSUNG_PARAM
+	tristate "Samsung Param-Partition Support"
+	default n
+	help
+		Say Y to enable Samsung Param support.

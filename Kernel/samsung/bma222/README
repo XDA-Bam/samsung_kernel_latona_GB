@@ -1,0 +1,31 @@
+BMA222 accelerometer driver
+
+* Overview
+
+  - Implemented based on linux-2.6.26 kernel.
+  - Designed as input device driver connected to a I2C bus.
+  - Sysfs is supported for configuration and control.
+  - Power management (suspend/resume) is supported.
+  - Supported devices: BMA222 (slave address: 0x08 or 0x09)
+
+
+* Build as kernel module
+
+  $ make -C <kernel source path> M=`pwd` modules
+
+
+* Configuration options
+
+  CONFIG_INPUT_BMA222_POSITION
+
+    Chip mounting position (pin 1).
+
+      0: top, upper-left
+      1: top, upper-right
+      2: top, lower-right
+      3: top, lower-left
+      4: bottom, upper-left
+      5: bottom, upper-right
+      6: bottom, lower-right
+      7: bottom, lower-left
+

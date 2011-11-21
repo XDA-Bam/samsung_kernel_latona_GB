@@ -1,0 +1,13 @@
+
+config INPUT_GP2A
+	tristate "Sharp GP2A proximity/light sensor driver"
+	default n
+	help
+	 Say Y to include support for Sharp GP2A proximity/light sensor.
+
+config INPUT_GP2A_USE_GPIO_I2C
+	tristate "Use GPIO I2C Emulation"
+	default n
+	help
+	 Say Y to use I2C using GPIO.
+	

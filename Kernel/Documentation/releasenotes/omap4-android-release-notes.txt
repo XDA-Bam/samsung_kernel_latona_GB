@@ -1,0 +1,235 @@
+# =====================================================================
+# L27.10.2P1 Froyo Hand-off
+# =====================================================================
+
+Author: Leed Aguilar
+Date: Feb 10th 2011
+Target Release: L27.10.2P1
+
+# =====================================================================
+# Configuration Settings
+# =====================================================================
+
+[KERNEL]
+Repo   : git://git.omapzoom.org/kernel/omap.git
+Branch : p-android-omap-2.6.35
+Tag    : android-2.6.35-2.2-omap4.10.2P1
+Config : android_4430_defconfig
+
+[U-BOOT]
+Repo   : git://git.omapzoom.org/repo/u-boot.git
+Branch : omap4_dev
+Tag:   : L27.10.2P1
+Commit : e59fe26ac2fb5b2fc599cfc76a7618d7fdd7062e
+Config : omap4430sdp_config
+
+[X-LOADER]
+Repo   : git://git.omapzoom.org/repo/x-loader.git
+Branch : omap4_dev
+Tag:   : L27.10.2P1
+Commit : ce983bb626e0c236bf1e1f748913c50c90ad5228
+Config : omap4430sdp_config
+
+OS: Linux 2.6.35
+Platform: SDP4430 OMAP4 ES2.1/ES2.2 EMU with ARM-A9-SMP@1Ghz
+          DDR@200Mhz, ES1.1 phoenix
+Toolchain: arm-none-linux-gnueabi-gcc (Sourcery G++ Lite 2010q1-202) 4.4.1
+
+# =====================================================================
+# Cloning/Compile information
+# =====================================================================
+
+Kernel:
+-------
+1. git clone git://git.omapzoom.org/kernel/omap.git; cd omap/
+2. git checkout -b L27.10.2P1 android-2.6.35-2.2-omap4.10.2P1
+3. make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- android_4430_defconfig
+4. make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- uImage
+** Output: uImage
+
+u-boot:
+-------
+1. git clone  git://git.omapzoom.org/repo/u-boot.git; cd u-boot/
+2. git checkout -b L27.10.2P1 e59fe26ac2fb5b2fc599cfc76a7618d7fdd7062e
+3. make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- omap4430sdp_config
+4. make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi-
+** Output: u-boot.bin
+
+x-loader:
+---------
+1. git clone git://git.omapzoom.org/repo/x-loader.git; cd x-loader/
+2. git checkout -b L27.10.2P1 ce983bb626e0c236bf1e1f748913c50c90ad5228
+3. make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- omap4430sdp_config
+4. make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabi- ift
+** Output: x-load.bin
+
+# =====================================================================
+# Important Notes
+# =====================================================================
+
+Install: Sourcery G++ Lite 2010q1-202 for ARM GNU/Linux
+http://www.codesourcery.com/sgpp/lite/arm/portal/release1293
+
+* Sample bootargs for MMC boot (1GB RAM support):
+
+$ setenv bootargs console=ttyO2,115200n8 mem=456M@0x80000000 mem=512M@0xA0000000 \
+  root=/dev/mmcblk1p2 rw rootdelay=2 init=/init  vram="10M" omapfb.vram="0:4M"
+$ setenv bootcmd 'mmcinit 0; fatload mmc 0 0x80000000 uImage;bootm 80000000'
+$ saveenv; run bootcmd
+
+* This Release is intended to be used for Android Froyo 2.2.1
+
+How obtain the Android source code:
+$ repo init -u git://git.omapzoom.org/platform/omapmanifest.git -b froyo
+$ repo sync
+$ cp device/ti/blaze/buildspec.mk.default buildspec.mk
+$ make -j2
+Output:
+See filesystem in:
+    out/target/product/blaze/...
+        * root/
+        * system/
+
+For more information on how to compile the Android Filesystem visit:
+http://omappedia.org/wiki/Android_Getting_Started#Building_Android
+
+[HIGHLIGHTS]
+
+* DPLL Cascading (not enabled by default)
+  To enable this mode use the debugfs entry:
+  echo 1 > /debug/pm_debug/dpll_cascade_enable
+  To exit DPLL cascading mode:
+  echo 0 > /debug/pm_debug/dpll_cascade_enable
+* Static dependency management (not enabled by default)
+* WA to send ACR packets in the HDMI channel
+* HSI power management support
+* I/O optimizations:
+  Enable non-EMIF I/O isolation
+* syslink: fix ret in idle path after recovery
+* ASoC: SDP4430: Enable DMIC for MODEM FE DAI
+* ASoC: twl6040: Add jack support for headset and handset
+* twl6030 Vibrator driver optimization
+
+[ADB over USB SUPPORT]
+
+Linux PC:
+http://omappedia.com/wiki/Support_Tools#Android_Gadget_ADB:_Linux_PC_Host
+
+Windows PC:
+http://omappedia.com/wiki/Support_Tools#Android_Gadget_ADB:_Windows_PC_Host
+
+More info about ADB can be found here:
+http://omappedia.org/wiki/Support_Tools
+
+# =====================================================================
+# Defects opened
+# =====================================================================
+
+OMAPS00228635	PT: Adhoc: AV playback pauses for about 1 second
+OMAPS00230533	PT: System fails to resume after several iterations
+OMAPS00230793	PT: System prints CPU1: Shutdown message
+OMAPS00231778	The accuracy of the normal timer is bad.
+OMAPS00232060	Device becomes full speed after re-enumeration
+OMAPS00232102	I2c 3.4Mbps speed is not functional, boot up fails
+OMAPS00232151	Phone hang when CPU1 keeps UP and DOWN
+OMAPS00232214	SGX performance not reached with hotplug/ondemand gov
+OMAPS00232241	PT: Robustness: SMC daemon affects system performance
+OMAPS00232246	MUSB Driver not enumerating any slave devices
+OMAPS00232247	MUSB driver doesn't detect plug/unplug of slave devices
+
+# =====================================================================
+# Defects rejected/blocked
+# =====================================================================
+
+OMAPS00231450	Kernel Panic seen in OHCI Hub Status
+
+# =====================================================================
+# Defects closed/resolved
+# =====================================================================
+
+OMAPS00231665	System Hang when device off is enabled on Solana
+OMAPS00231929	USB CV test failures with Android gadget
+
+# =====================================================================
+# Kernel Changelist
+# =====================================================================
+
+Kernel stats from previous L27.10.2 HO: 72 new patches introduced
+ 
+84 files changed, 3692 insertions(+), 1410 deletions(-)
+
+4688cdf HACK: OMAP4: prevent DVFS transitions in LP mode
+479a86f OMAP4: introduce DPLL_ABE low power bypass/cascade
+cf668b9 OMAP4: Clock: missing DPLL_ABE bitfield defines
+a0b443b OMAP4: Clock: missing data for PM debug clocks
+d669567 OMAP4: Clock: new DPLL_CORE set_rate, and M2 fixes
+75211ec OMAP4: Clock: add MN Bypass data to DPLL structs
+fcc307e OMAP4: Fix struct init for iva_hsd_byp_clk_mux_ck
+2604d78 OMAP4: Clock: recalc for REGM4XEN-capable DPLLs
+9876e42 OMAP: Clock: freqsel valid only on OMAP34xx
+68930fa OMAP4: Clock: round_rate function for DPLL_ABE
+3ae4cd5 OMAP3+: use DPLL's round_rate when setting rate
+8ab6df1 SGX: UDD: Changing the early suspend registration level
+bc967ca SGX: UDD: Create sysfs entry to allow ignoring the display sync
+936baa6 SGX: UDD: Use correct stride when TILER memory is used
+1c7487d OMAP4: SMC: PM: Fix  Entry and Exit of suspend mode with SMC
+41bac15 Revert "OMAP4: DSS Inactivity support"
+b5d7af2 OMAP4: HSI: Fixed invalid DLL register access
+72e5318 OMAP4: HSI: Fixed wrong check of HSR framesize setting
+369d812 OMAP4: HSI: changed HSI interrupts names in HWMOD
+51d6cb0 OMAP4: HSI: PM: Added detection of unrequested RX FIFO frames
+c9ecd39 OMAP4: HSI: Fix for DMA channel not released in Interrupt mode
+92eec3d OMAP4: HSI: changed HSI default FIFO mapping
+904c0a0 OMAP4: HSI: Debug traces improvement
+e6f18ce OMAP4: HSI: Fix for Data Accepted interrupt not cleared
+b5a76e8 OMAP4: HSI: PM: changed HSI default clock to 96MHz
+1c58b47 OMAP4: HSI: DMA logical channel fixes
+c11b895 OMAP4: HSI: PM: added context SAR mechanism
+6532e70 OMAP4: HSI: PM: Added dynamic HSI Fclock change support
+6b6af35 OMAP4: HSI: Fix for potential race condition when accessing ...
+842d500 Revert "OMAP4:Minimize DDR consumption for 4430SDP"
+13f5c07 HDMI: Release resources after stopping stream on HDMI disconnect
+c84aea8 OMAP4: serial: remove padconf addresses to board files
+5145d56 syslink: ipu_pm: fix ret in idle path after recovery
+37e57de ASoC: sdp4430: Enable hostless support for MM_LP port
+385c3cb ASoC: Allow hostless support in single direction ports
+7aaa51f OMAP4: MMC 3/4/5 context save/restore in idle
+97cfd1f ASoC: OMAP4: DMic: support single channel capture
+2337c5c ASoC: SDP4430: Enable DMIC for MODEM FE DAI
+bca205b ASoC: SDP4430: Avoid to configure McBSP2 for MODEM FE DAI once
+695ddb5 syslink: ipu_pm: hack to sofreset iss & fdif
+21d829c OMAP4: HDMI: Workaround for ACR packets - part 2
+5bfa342 OMAP4: HDMI: Workaround for ACR packets - part 1
+e48f2d0 OMAP4: HSI: change HSI bottom half interrupt processing to ...
+6fe0efeb OMAP4: v4l2: Move work_struct allocation from ISR to avoid ...
+848d0c6 OMAP4:PM:Defconfig: Static dependency disable by default
+4944f53 OMAP4:PM: static dependency L3_2/L4 and MPU/Ducati
+3fe5253 OMAP4:Enable non-EMIF I/O isolation
+72c2081 OMAP4: Correct the GPIO save/restore sequence
+7cd187f Revert "OMAP4:Fix the glitch on GPIO54/55."
+50ef1b5 Revert "GPIO: add delay to fix glitch on resume"
+1bd5f8b OMAP4: DSS Inactivity support
+2a6880f Revert "USB: MUSB: Fix the fsg->interface to match w_index ...
+35886c5 mfd: twl6040: vibrator: Add pm ops to vibrator driver
+0e258da twl6040: vibrator: Add pm ops to vibrator driver
+3677d40 mfd: twl6040: Vibrator: Simplify vibrator enable/disable
+5662781 TWL6040: Vibrator: Simplify vibrator enable/disable
+629625a ASoC: sdp4430: Enable tps6130x during machine probe
+dad4c45 mfd: twl6040: Add pll configuration support
+dd68a40 mfd: twl6040: Add power and irq shared resources
+099090a mfd: twl6040: Centralize registers read/write
+86063ca mfd: twl6040: Add timed output vibra as twl6040 child
+c50a1e9 ASoC: twl6040: Add jack support for headset and handset
+43dc539 ASoC: twl6040: Remove sys_irq2 padconf from CODEC driver
+82289f4 OMAP-PM: add API to set min mpu freq.
+2390af1 OMAP4 SERIAL: Add conditions to hold a wakelock.
+d99cd06 Merge "OMAP4: PM: Make MPU and CORE next states as ON unless ...
+1439ac8 OMAP4: PM: Make MPU and CORE next states as ON unless ...
+3f245c0 OMAP4:Fix HSMMC 3/4/5 master clock
+c0c4c56 Add static mapping for L3 DSS
+b58224e OMAP4: Android defconfig: Strongly Ordered memory
+4f89b4d Nohz/sched: don't go tickless when CPU is loaded
+c7c8b70 V4L2 changes for controlling z-order
+
+# =====================================================================
+
