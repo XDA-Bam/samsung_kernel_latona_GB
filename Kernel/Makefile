@@ -189,7 +189,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		= arm
-CROSS_COMPILE	= /opt/arm-2010.09/bin/arm-none-eabi-
+CROSS_COMPILE	= /opt/arm-eabi-4.4.3/bin/arm-eabi-
 
 
 # Architecture as present in compile.h
