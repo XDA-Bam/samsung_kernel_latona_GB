@@ -42,6 +42,7 @@ scm_version()
 		short=true
 	fi
 
+if test "$1" = "--git"; then
 	# Check for git and a git repo.
 	if head=`git rev-parse --verify --short HEAD 2>/dev/null`; then
 
@@ -83,6 +84,7 @@ scm_version()
 		# All done with git
 		return
 	fi
+fi
 
 	# Check for mercurial and a mercurial repo.
 	if hgid=`hg id 2>/dev/null`; then
