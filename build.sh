@@ -4,7 +4,7 @@ read ANS
 cd Kernel/
 ./LATONA.sh
 cd ..
-
+cp Kernel/arch/arm/boot/zImage zImage
 
 # Copy to ramdisk
 echo "Press enter to copy the modules"
@@ -52,6 +52,7 @@ echo "Press enter to strip the modules"
 read ANS
 cd ramdisk_clean/lib/modules/2.6.35.7/kernel/
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded crypto/pcbc.ko
+	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/bluetooth/btwilink.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/misc/ti-st/st_drv.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/scsi/scsi_wait_scan.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/battery/samsung_battery.ko
@@ -67,6 +68,7 @@ cd ramdisk_clean/lib/modules/2.6.35.7/kernel/
 cd ../../../../../
 cd ramdisk_CF-root/lib/modules/2.6.35.7/kernel/
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded crypto/pcbc.ko
+	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/bluetooth/btwilink.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/misc/ti-st/st_drv.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/scsi/scsi_wait_scan.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/battery/samsung_battery.ko
