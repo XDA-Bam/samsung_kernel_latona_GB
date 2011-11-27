@@ -1,9 +1,9 @@
 # Build kernel and modules
-#echo "Press enter to build the kernel"
-#read ANS
-#cd Kernel/
-#./LATONA.sh
-#cd ..
+echo "Press enter to build the kernel"
+read ANS
+cd Kernel/
+./LATONA.sh
+cd ..
 
 
 # Copy to ramdisk
