@@ -1,0 +1,136 @@
+#!/sbin/ext/busybox sh
+
+TWEAK_BASE="persist.tweak";
+
+TWEAK_IO="$TWEAK_BASE.ioscheduler";
+TWEAK_VM_SWAPPINESS="$TWEAK_BASE.vm.swappiness";
+TWEAK_VM_DIRTY="$TWEAK_BASE.vm.dirty";
+TWEAK_SCHEDULER="$TWEAK_BASE.scheduler";
+TWEAK_MINFREE="$TWEAK_BASE.minfree";
+TWEAK_SDCARD="$TWEAK_BASE.sdcard";
+TWEAK_STAGEFRIGHT="$TWEAK_BASE.stagefright";
+TWEAK_GOVERNOR_CONSERVATIVE="$TWEAK_BASE.gov_conservative";
+
+
+
+for i in $TWEAK_GOVERNOR_CONSERVATIVE $TWEAK_STAGEFRIGHT $TWEAK_IO $TWEAK_VM_SWAPPINESS $TWEAK_VM_DIRTY $TWEAK_SCHEDULER $TWEAK_MINFREE $TWEAK_SDCARD; do
+  if [ "$(propget $i)" = "" ]; then
+    propset $i disabled;
+  fi;
+done;
+
+if [ $(propget $TWEAK_IO) = "enabled" ]; then
+  # Tweak cfq io scheduler
+  for i in $(ls -1 /sys/block/stl*) $(ls -1 /sys/block/mmc*)
+  do 
+    echo "0" > $i/queue/rotational
+    echo "1" > $i/queue/iosched/low_latency
+    echo "1" > $i/queue/iosched/back_seek_penalty
+    echo "1000000000" > $i/queue/iosched/back_seek_max
+    echo "3" > $i/queue/iosched/slice_idle
+	echo 16 > $i/queue/iosched/quantum
+	echo 1 > $i/queue/iosched/fifo_batch
+  done
+fi;
+
+
+
+
+if [ $(propget $TWEAK_SDCARD) = "enabled" ]; then
+  # SDcard speed tweak
+     echo "3072" > /sys/devices/platform/mmci-omap-hs.0/mmc_host/mmc1/mmc1:e624/block/mmcblk1/queue/read_ahead_kb; 
+fi;
+
+if [ $(propget $TWEAK_VM_SWAPPINESS) = "enabled" ]; then
+  # Tweak kernel VM management
+  echo "60" > /proc/sys/vm/swappiness
+fi;
+
+if [ $(propget $TWEAK_VM_DIRTY) = "enabled" ]; then
+  # Miscellaneous tweaks
+  echo 2000 > /proc/sys/vm/dirty_writeback_centisecs
+  echo 1000 > /proc/sys/vm/dirty_expire_centisecs
+  echo 20 > /proc/sys/vm/dirty_background_ratio;
+  echo 30 > /proc/sys/vm/dirty_ratio;
+  echo 2048 > /proc/sys/vm/min_free_kbytes;
+  echo 10 > /proc/sys/vm/vfs_cache_pressure;
+fi;
+
+
+if [ $(propget $TWEAK_SCHEDULER) = "enabled" ]; then
+ # Tweak kernel scheduler
+  echo 4000000 > /proc/sys/kernel/sched_min_granularity_ns;
+  echo 8000000 > /proc/sys/kernel/sched_latency_ns;
+  echo 1600000 > /proc/sys/kernel/sched_wakeup_granularity_ns;
+  echo 24319 > /proc/sys/kernel/sched_features;
+  
+  echo 404480 > proc/sys/net/core/wmem_max;
+  echo 404480 > proc/sys/net/core/rmem_max;
+  echo 4096 16384 404480 > /proc/sys/net/ipv4/tcp_wmem;
+  echo 4096 87380 404480 > /proc/sys/net/ipv4/tcp_rmem;
+fi;
+
+
+if [ $(propget $TWEAK_MINFREE) = "enabled" ]; then
+  if [ -e /sys/module/lowmemorykiller/parameters/minfree ]; then
+    echo "2560,4096,6144,12288,14336,21760" > /sys/module/lowmemorykiller/parameters/minfree
+  fi;
+fi;
+
+if [ $(propget $TWEAK_STAGEFRIGHT) = "enabled" ]; then
+LOG_FILE=/data/zipalign.log
+ZIPALIGNDB=/data/zipalign.db
+
+if [ -e $LOG_FILE ]; then
+	rm $LOG_FILE;
+fi;
+
+if [ ! -f $ZIPALIGNDB ]; then
+	touch $ZIPALIGNDB;
+fi;
+
+echo "Starting FV Automatic ZipAlign $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG_FILE
+busybox mount -o rw,remount /system
+
+for DIR in /system/app /data/app ; do
+  cd $DIR
+  for APK in *.apk ; do
+    if [ $APK -ot $ZIPALIGNDB ] && [ $(grep "$DIR/$APK" $ZIPALIGNDB|wc -l) -gt 0 ] ; then
+      echo "Already checked: $DIR/$APK" | tee -a $LOG_FILE
+    else
+      zipalign -c 4 $APK
+      if [ $? -eq 0 ] ; then
+        echo "Already aligned: $DIR/$APK" | tee -a $LOG_FILE
+        grep "$DIR/$APK" $ZIPALIGNDB > /dev/null || echo $DIR/$APK >> $ZIPALIGNDB
+      else
+        echo "Now aligning: $DIR/$APK" | tee -a $LOG_FILE
+        zipalign -f 4 $APK /cache/$APK
+        cp -f -p /cache/$APK $APK
+        busybox rm -f /cache/$APK
+        grep "$DIR/$APK" $ZIPALIGNDB > /dev/null || echo $DIR/$APK >> $ZIPALIGNDB
+      fi
+    fi
+  done
+done
+
+busybox mount -o ro,remount /system
+echo "Automatic ZipAlign finished at $( date +"%m-%d-%Y %H:%M:%S" )" | tee -a $LOG_FILE
+fi;
+
+if [ $(propget $TWEAK_GOVERNOR_CONSERVATIVE) = "enabled" ]; then
+for k in $(busybox mount | grep ext4 | cut -d " " -f3)
+do
+  sync;
+  if [ "$k" = "/system" ]; then
+    busybox mount -o remount,commit=20,noauto_da_alloc,barrier=1,nobh $k;
+  elif [ "$k" = "/dbdata" ]; then
+    busybox mount -o remount,noatime,commit=20,noauto_da_alloc,barrier=0,nodelalloc,nobh $k;
+  elif [ "$k" = "/data" ]; then
+    busybox mount -o remount,noatime,commit=20,noauto_da_alloc,barrier=1,nobh $k;
+  elif [ "$k" = "/cache" ]; then
+    busybox mount -o remount,noatime,commit=20,noauto_da_alloc,barrier=1,nobh $k;
+  fi;
+done
+fi;
+
+

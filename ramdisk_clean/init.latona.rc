@@ -1,0 +1,432 @@
+##
+# Copyright (C) 2010-2011, Samsung Electronics, Co., Ltd. All Rights Reserved.
+#  Written by System S/W Group, S/W Platform R&D Team,
+#  Mobile Communication Division.
+##
+
+
+#==============================================================================
+# Trigger : early-init
+#==============================================================================
+on early-init
+# load linux-kernel modules
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/drivers/fsr/fsr.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/drivers/fsr/fsr_stl.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/fs/rfs/rfs_glue.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/fs/rfs/rfs_fat.ko
+
+    insmod /lib/modules/2.6.35.7/kernel/samsung/battery/samsung_battery.ko
+
+    insmod /lib/modules/2.6.35.7/kernel/samsung/fm_si4709/Si4709_driver.ko
+
+    insmod /lib/modules/2.6.35.7/kernel/samsung/yas529/yas_mag_kernel_driver.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/bma222/yas_acc_kernel_driver.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/orientation/yas_ori_kernel_driver.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/gp2a/gp2a.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/gps/gps.ko
+
+    insmod /lib/modules/2.6.35.7/kernel/drivers/phone_svn/storage/storage.ko
+
+    insmod /lib/modules/2.6.35.7/kernel/samsung/vibetonz/vibetonz.ko
+
+
+#==============================================================================
+# Trigger : init
+#==============================================================================
+on init
+    export INTERNAL_STORAGE /mnt/sdcard
+    export EXTERNAL_STORAGE /mnt/sdcard/external_sd
+    export OTG_STORAGE /mnt/sdcard/otg_disk
+    export PM_TBLFILE /system/etc/policytable.tbl
+    export BT_FW_PATH /system/lib/firmware
+
+    mkdir /dbdata 0771 system system
+
+# Device Encryption will use efs partition for meta data
+#    mkdir /efs 0770 radio radio
+    mkdir /efs 0770 radio system
+    mkdir /debug
+
+    mount debugfs /sys/kernel/debug /sys/kernel/debug
+
+# fake some battery state
+    setprop status.battery.state Slow
+    setprop status.battery.level 5
+    setprop status.battery.level_raw  50
+    setprop status.battery.level_scale 9
+
+
+#==============================================================================
+# Trigger : early-fs
+#==============================================================================
+#on early-fs
+
+
+#==============================================================================
+# Trigger : fs
+#==============================================================================
+on fs
+
+# We chown/chmod /efs again so because mount is run as root + defaults
+    mount rfs /dev/block/stl3 /efs nosuid nodev check=no,iocharset=cp437
+
+# Device Encryption will use efs partition for meta data
+#    chown radio radio /efs
+     chown radio system /efs
+
+    chmod 0771 /efs
+
+# mount param partition
+    insmod /lib/modules/2.6.35.7/kernel/samsung/j4fs/j4fs.ko
+    mkdir /mnt/.lfs 0755 root root
+    mount j4fs /dev/block/stl6 /mnt/.lfs
+    chmod 0755 /mnt/.lfs
+    insmod /lib/modules/2.6.35.7/kernel/samsung/param/param.ko
+
+    mount debugfs debugfs /debug
+
+#==============================================================================
+# Trigger : post-fs
+#==============================================================================
+on post-fs
+
+# change permissions for alsa nodes
+    symlink /dev/snd/pcmC0D0c /dev/pcmC0D0c
+    symlink /dev/snd/pcmC0D0p /dev/pcmC0D0p
+    symlink /dev/snd/controlC0 /dev/controlC0
+    symlink /dev/snd/timer /dev/timer
+
+# create basic filesystem structure
+    mkdir /data/misc/radio 0771 radio radio
+# create softap for TI SoftAP. 2010/12/07 CHKIM   
+    mkdir /data/misc/softap 0770 wifi wifi
+    mkdir /data/misc/dhcp 0777 dhcp dhcp
+
+# create log system
+    chmod 0777 /data/log
+    chmod 0777 /data/anr
+
+    # Added for testing WMDRM and DIVX DRM
+    mkdir /data/data/.drm/ 0775
+    mkdir /data/data/.drm/.wmdrm 0775
+    chown media system /data/data/.drm
+    chown media system /data/data/.drm/.wmdrm
+
+    # Permission for WMDRM sample.hds file
+    chmod 0775  /data/data/.drm/.wmdrm/sample.hds
+
+    # video play for m.youtube.com
+    mkdir /data/data/.youtube 0777
+
+# install switch_sio driver
+    insmod /lib/modules/2.6.35.7/kernel/drivers/switch/switch_sio.ko
+
+# GPS UART
+    mkdir /data/gps 771 system system
+    chown system system /data/gps
+    chown system system /sys/class/sec/GPS_PWR_EN/value
+    chown system system /sys/class/sec/GPS_NRST/value
+    chown system system /sys/class/sec/GPS_CNTL/value
+    chmod 660 /sys/class/sec/GPS_PWR_EN/value
+    chmod 660 /sys/class/sec/GPS_NRST/value
+    chmod 660 /sys/class/sec/GPS_CNTL/value
+
+# Added for  WMDRM 
+    mkdir /data/data/.drm/ 0775
+    mkdir /data/data/.drm/.wmdrm 0775
+    chown media system /data/data/.drm
+    chown media system /data/data/.drm/.wmdrm
+
+
+# audio tune files
+    chmod 0666 /data/aeqcoe.txt
+    chmod 0666 /data/soundbooster.txt
+    chmod 0666 /data/srstunning.txt
+
+    mkdir /dbdata/databases
+    chown system system /dbdata/databases    
+    chmod 0777 /dbdata/databases
+
+    mkdir /dbdata/system
+    chown system system /dbdata/system
+    chmod 0775 /dbdata/system
+
+    chown system radio /sys/devices/virtual/misc/level/control
+
+# add for user can pull out recovery.log file by ADB CMD
+    chown system cache /cache/log
+    chmod 0771 /cache/log
+
+# DRM directory creation
+    # DivX DRM	
+    mkdir /efs/.files 0775
+    mkdir /efs/.files/.dx1 0775
+    mkdir /efs/.files/.dm33 0775
+    mkdir /efs/.files/.mp301 0775
+
+# permission for dvfslock ctrl
+	chown radio system /sys/power/dvfslock_ctrl
+	chmod 0660 /sys/power/dvfslock_ctrl
+
+# permission for battery
+    chown radio system /sys/class/power_supply/battery/batt_fuelgauge_reset
+    chmod 0664 /sys/class/power_supply/battery/batt_fuelgauge_reset
+
+# change permission of ftm_sleep
+	chown system system /sys/power/ftm_sleep
+	chmod 0664 /sys/power/ftm_sleep
+	
+# change permission of pm_debug
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_errorgain
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_smpswaittimemin
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_stepmin
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_smpswaittimemax
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_stepmax
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_vddmax
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_vddmin
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/vp_timeout
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_mpu/fbb_enable
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_errorgain
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_smpswaittimemin
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_stepmin
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_smpswaittimemax
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_stepmax
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_vddmax
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_vddmin
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage/vdd_core/vp_timeout
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_mpu/autocomp
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_mpu/errweight
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_mpu/errmaxlimit
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_mpu/errminlimit
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_core/autocomp
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_core/errweight
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_core/errmaxlimit
+	chmod 0664 /sys/kernel/debug/pm_debug/smartreflex/sr_core/errminlimit
+	chmod 0664 /sys/kernel/debug/pm_debug/voltage_off_while_idle
+	chmod 0664 /sys/kernel/debug/pm_debug/enable_off_mode
+	chmod 0664 /sys/kernel/debug/pm_debug/sleep_while_idle
+	chmod 0664 /sys/kernel/debug/pm_debug/wakeup_timer_seconds
+	chmod 0664 /sys/kernel/debug/pm_debug/wakeup_timer_milliseconds
+	chmod 0664 /sys/kernel/debug/pm_debug/enable_sr_vp_debug
+
+#==============================================================================
+# Trigger : early-boot
+#==============================================================================
+on early-boot
+
+    # Enabling sleep in idle path
+    write /debug/pm_debug/sleep_while_idle 1
+
+    # Enabling Voltage OFF in idle path
+    write /debug/pm_debug/voltage_off_while_idle 1
+
+    # Enabling OFF mode
+    write /debug/pm_debug/enable_off_mode 1
+
+    # Enabling Smartreflex
+    write /debug/pm_debug/smartreflex/sr_mpu/autocomp 1 
+    write /debug/pm_debug/smartreflex/sr_core/autocomp 1 
+
+	# Setting scaling governor
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor conservative
+
+    # change permissions for Sensors
+    chown system system /sys/bus/i2c/drivers/cma3000_accl/4-001c
+    chown system system /sys/bus/i2c/drivers/cma3000_accl/4-001c/enable
+    chown system system /sys/bus/i2c/drivers/cma3000_accl/4-001c/delay
+    chown system system /sys/devices/platform/sfh7741.1
+    chown system system /sys/devices/platform/sfh7741.1/state
+    chown system system /sys/bus/i2c/drivers/bmp085/4-0077
+    chown system system /sys/bus/i2c/drivers/bmp085/4-0077/enable
+    chown system system /sys/bus/i2c/drivers/hmc5843/4-001e
+    chown system system /sys/bus/i2c/drivers/hmc5843/4-001e/enable
+    chown system system /sys/bus/i2c/drivers/hmc5843/4-001e/rate
+
+# change permissions for overlay managers and display devices
+    chown system system /sys/devices/platform/omapdss/manager0/name
+    chown system system /sys/devices/platform/omapdss/manager1/name
+    chown system system /sys/devices/platform/omapdss/display0/name
+    chown system system /sys/devices/platform/omapdss/display1/name
+    chown system system /sys/devices/platform/omapdss/display0/enabled
+    chown system system /sys/devices/platform/omapdss/display1/enabled
+    chown system system /sys/devices/platform/omapdss/display1/timings
+    chown system system /sys/devices/platform/omapdss/display0/timings
+    chown system system /sys/devices/platform/omapdss/overlay0/manager
+    chown system system /sys/devices/platform/omapdss/overlay1/manager
+    chown system system /sys/devices/platform/omapdss/overlay2/manager
+    chown system system /sys/devices/platform/omapdss/overlay0/enabled
+    chown system system /sys/devices/platform/omapdss/overlay1/enabled
+    chown system system /sys/devices/platform/omapdss/overlay2/enabled
+    chown system system /sys/devices/platform/omapdss/overlay0/zorder
+    chown system system /sys/devices/platform/omapdss/overlay1/zorder
+    chown system system /sys/devices/platform/omapdss/overlay2/zorder
+    chown system system /sys/devices/platform/omapdss/overlay3/zorder
+    # change permissions for manager tranparency parameters
+    chown system system /sys/devices/platform/omapdss/manager0/name
+    chown system system /sys/devices/platform/omapdss/manager0/display
+    chown system system /sys/devices/platform/omapdss/manager0/trans_key_value
+    chown system system /sys/devices/platform/omapdss/manager0/trans_key_type
+    chown system system /sys/devices/platform/omapdss/manager0/trans_key_enabled
+    chown system system /sys/devices/platform/omapdss/manager1/name
+    chown system system /sys/devices/platform/omapdss/manager1/display
+    chown system system /sys/devices/platform/omapdss/manager1/trans_key_value
+    chown system system /sys/devices/platform/omapdss/manager1/trans_key_type
+    chown system system /sys/devices/platform/omapdss/manager1/trans_key_enabled
+    chown system system /sys/devices/platform/omapdss/manager2/name
+    chown system system /sys/devices/platform/omapdss/manager2/display
+    chown system system /sys/devices/platform/omapdss/manager2/trans_key_value
+    chown system system /sys/devices/platform/omapdss/manager2/trans_key_type
+    chown system system /sys/devices/platform/omapdss/manager2/trans_key_enabled
+    chown system system /sys/devices/platform/omapdss/overlay0/enabled
+    chown system system /sys/devices/platform/omapdss/overlay1/enabled
+    chown system system /sys/devices/platform/omapdss/overlay2/enabled
+    chown system system /sys/devices/platform/omapdss/overlay3/enabled
+    # change permissions for display timings to get the resolutions
+    chown system system /sys/devices/platform/omapdss/display0/timings
+    chown system system /sys/devices/platform/omapdss/display1/timings
+    chown system system /sys/devices/platform/omapdss/display2/timings
+    chown system system /sys/devices/platform/omapdss/display3/timings
+
+    # change permissions for lcd_power
+    chown radio system /sys/class/backlight/omap_bl/device/lcd_power
+    
+    chown radio system /sys/power/dvfslock_ctrl
+    chmod 0660 /sys/power/dvfslock_ctrl
+
+# geomagnetic for rev 0.1 
+    chown system input /sys/class/input/input3/enable
+    chown system input /sys/class/input/input3/poll_delay
+    chown system input /sys/class/input/input3/filter_enable
+    chown system input /sys/class/input/input3/filter_len
+    chown system input /sys/class/input/input3/data
+    chown system input /sys/class/input/input3/status
+    chown system input /sys/class/input/input3/wake
+    chown system input /sys/class/input/input3/position
+
+# geomagnetic for rev 0.8
+    chown system input /sys/class/input/input4/enable
+    chown system input /sys/class/input/input4/poll_delay
+    chown system input /sys/class/input/input4/filter_enable
+    chown system input /sys/class/input/input4/filter_len
+    chown system input /sys/class/input/input4/data
+    chown system input /sys/class/input/input4/status
+    chown system input /sys/class/input/input4/wake
+    chown system input /sys/class/input/input4/position
+
+# geomagnetic raw for rev 0.1
+    chown system input /sys/class/input/input4/threshold
+    chown system input /sys/class/input/input4/distortion
+    chown system input /sys/class/input/input4/shape
+    chown system input /sys/class/input/input4/offsets
+    write /sys/class/input/input4/threshold 1
+    write /sys/class/input/input4/distortion "20 20 15"
+
+# geomagnetic raw for rev 0.8
+    chown system input /sys/class/input/input5/threshold
+    chown system input /sys/class/input/input5/distortion
+    chown system input /sys/class/input/input5/shape
+    chown system input /sys/class/input/input5/offsets
+    write /sys/class/input/input5/threshold 1
+    write /sys/class/input/input5/distortion "20 20 15"
+    write /sys/class/input/input5/filter_enable 1
+
+# accelerometer for rev 0.1
+    chown system input /sys/class/input/input5/enable
+    chown system input /sys/class/input/input5/poll_delay
+    chown system input /sys/class/input/input5/position
+    chown system input /sys/class/input/input5/threshold
+    chown system input /sys/class/input/input5/wake
+    chown system input /sys/class/sensors/accelerometer_sensor/raw_data
+    chown system input /sys/class/sensors/accelerometer_sensor/calibration
+
+# accelerometer for rev 0.8
+    chown system input /sys/class/input/input6/enable
+    chown system input /sys/class/input/input6/poll_delay
+    chown system input /sys/class/input/input6/position
+    chown system input /sys/class/input/input6/threshold
+    chown system input /sys/class/input/input6/wake
+    chown system input /sys/class/input/input6/data
+    chown system input /sys/class/input/input6/calibration
+
+# orientation
+    chown system input /sys/class/input/input6/enable
+    chown system input /sys/class/input/input6/poll_delay
+    chown system input /sys/class/input/input6/wake
+    chown system input /sys/class/input/input6/data
+    chown system input /sys/class/input/input6/status
+
+# proximity
+    chown system input /sys/class/input/input7/enable
+    chown system input /sys/class/input/input7/poll_delay
+    chown system input /sys/class/input/input7/wake
+    chown system input /sys/class/sensors/proximity_sensor/state
+    chown system input /sys/class/sensors/proximity_sensor/adc
+
+# light sensor
+    chown system input /sys/class/input/input8/enable
+    chown system input /sys/class/input/input8/poll_delay
+    chown system input /sys/class/input/input8/wake
+    chown system input /sys/class/sensors/light_sensor/lux
+    chown system input /sys/class/sensors/light_sensor/adc
+
+# for rev 0.8
+    chown system input /sys/class/input/input9/enable
+    chown system input /sys/class/input/input9/poll_delay
+    chown system input /sys/class/input/input9/wake
+    chown system input /sys/class/input/input9/data
+    chown system input /sys/class/input/input9/status
+    chown system input /sys/class/input/input9/testmode    
+
+    # Permissions for System Server and daemons.
+    chown system system /sys/class/backlight/omap_bl/brightness
+
+    # Vibetonz
+    export TMPDIR /data/local/tmp
+    symlink /data/local/tmp /tmp
+
+    # enable touch boost
+    write /sys/touchscreen/touch_boost 1
+
+# Set bluetooth address file path info.
+    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
+
+# Permissions for bluetooth.
+    chown bluetooth bluetooth ro.bt.bdaddr_path
+    chmod 0660 /dev/ttyS1
+    chown bluetooth bluetooth /dev/ttyS1
+    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    write sys/class/rfkill/rfkill0/state 0
+
+# permission for touchscreen
+    chown system system /sys/touchscreen/bootcomplete
+    chown system system /sys/touchscreen/set_qt_firm_update
+
+
+# Changed TI bluez system.
+service hciattach /system/bin/logwrapper /system/bin/hciattach -n /dev/ttyS1 texas 3000000
+    # let hciattach drop uid to bluetooth with the right linux capabilities
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+#HCI_ENABLE_BT_DEV_UNDER_TEST_MODE   
+service bt_dut_cmd /system/bin/ti_dut
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+    
+#==============================================================================
+# Trigger : boot
+#==============================================================================
+#on boot
+# Initialize the SGX driver
+#service pvrsrvinit /system/bin/pvrsrvinit
+#    user root
+#    group root
+#    oneshot
+
+#service dhcpcd /system/bin/dhcpcd -ABKL
+#    disabled
+#    oneshot

@@ -1,0 +1,26 @@
+##
+# Copyright (C) 2010-2011, Samsung Electronics, Co., Ltd. All Rights Reserved.
+#  Written by System S/W Group, Open OS S/W R&D Team,
+#  Mobile Communication Division.
+##
+
+/dev/i2c-1		0660	root		system
+/dev/i2c-2		0660	root		system
+/dev/sec_gain		0660	root		system
+/dev/onedram		0660	radio		radio
+/dev/tspdrv		0660	system		system
+/dev/usb_mtp_gadget	0660	system		system
+/dev/storage		0640	radio		radio
+/dev/yas529		0640	compass		system
+/dev/ttyS0		0660	system		system
+/dev/ttyS1		0660	bluetooth	bluetooth
+/dev/DspBridge		0660	system		system
+/dev/video1		0660	system		system
+/dev/video5		0660	system		camera
+/dev/video6		0660	system		system
+/dev/video10		0660	system		system
+/dev/omap-previewer	0660	system		system
+/dev/omap-resizer	0660	system		system
+/dev/pvrsrvkm		0666	system		system
+/dev/usb_mtp_gadget	0660	system		system
+/dev/fmradio		0660	system		system
