@@ -45,7 +45,9 @@ cp --remove-destination Kernel/samsung/param/param.ko ramdisk_CF-root/lib/module
 ###RFS&FSR
 cp --remove-destination Kernel/samsung/vibetonz/vibetonz.ko ramdisk_CF-root/lib/modules/2.6.35.7/kernel/samsung/vibetonz/vibetonz.ko
 cp --remove-destination Kernel/samsung/yas529/yas_mag_kernel_driver.ko ramdisk_CF-root/lib/modules/2.6.35.7/kernel/samsung/yas529/yas_mag_kernel_driver.ko
-
+cp --remove-destination Kernel/fs/mbcache.ko ramdisk_CF-root/lib/modules/2.6.35.7/kernel/fs/mbcache.ko
+cp --remove-destination Kernel/fs/jbd2/jbd2.ko ramdisk_CF-root/lib/modules/2.6.35.7/kernel/fs/jbd2/jbd2.ko
+cp --remove-destination Kernel/fs/ext4/ext4.ko ramdisk_CF-root/lib/modules/2.6.35.7/kernel/fs/ext4/ext4.ko
 
 # Strip modules
 echo "Press enter to strip the modules"
@@ -80,6 +82,9 @@ cd ramdisk_CF-root/lib/modules/2.6.35.7/kernel/
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/param/param.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/vibetonz/vibetonz.ko
 	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/yas529/yas_mag_kernel_driver.ko
+	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded fs/mbcache.ko
+	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded fs/jbd2/jbd2.ko
+	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded fs/ext4/ext4.ko
 
 echo "All done. Press enter to exit script."
 read ANS
