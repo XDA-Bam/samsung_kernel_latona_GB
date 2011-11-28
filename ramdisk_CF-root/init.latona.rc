@@ -231,8 +231,8 @@ on early-boot
     write /debug/pm_debug/smartreflex/sr_mpu/autocomp 1 
     write /debug/pm_debug/smartreflex/sr_core/autocomp 1 
 
-	# Setting scaling governor
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor conservative
+    # Setting scaling governor
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor smartassV2
 
     # change permissions for Sensors
     chown system system /sys/bus/i2c/drivers/cma3000_accl/4-001c
