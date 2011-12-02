@@ -57,6 +57,16 @@ static cpumask_var_t omap4_cpumask;
 static int cpus_initialized;
 #endif
 
+static ssize_t overclock_max_freq_show(struct kobject *, struct kobj_attribute *,
+              char *);
+static ssize_t overclock_max_freq_store(struct kobject *k, struct kobj_attribute *,
+			  const char *buf, size_t n);
+
+
+static struct kobj_attribute overclock_max_freq =
+    __ATTR(overclock_max_freq, 0644, overclock_max_freq_show, overclock_max_freq_store);
+
+
 /* TODO: Add support for SDRAM timing changes */
 
 static int omap_verify_speed(struct cpufreq_policy *policy)
@@ -190,6 +200,8 @@ static int omap_target(struct cpufreq_policy *policy,
 static int omap_cpu_init(struct cpufreq_policy *policy)
 {
 	int result = 0;
+    	int error = -EINVAL;
+
 	if (cpu_is_omap44xx())
 		mpu_clk = clk_get(NULL, "dpll_mpu_ck");
 	else
@@ -243,6 +255,12 @@ static int omap_cpu_init(struct cpufreq_policy *policy)
 	cpus_initialized++;
 #endif
 
+	error = sysfs_create_file(power_kobj, &overclock_max_freq.attr);
+	if (error) {
+		printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
+		return error;
+	}
+
 	return 0;
 }
 
@@ -276,6 +294,87 @@ static struct cpufreq_driver omap_driver = {
 static int __init omap_cpufreq_init(void)
 {
 	return cpufreq_register_driver(&omap_driver);
+}
+
+static ssize_t overclock_max_freq_show(struct kobject *kobj,
+        struct kobj_attribute *attr, char *buf)
+{
+	unsigned int freq;
+	struct device *mpu_dev;
+	struct omap_opp *temp_opp;
+
+	mpu_dev = omap2_get_mpuss_device();
+	if(IS_ERR(mpu_dev))
+		return -EINVAL;
+
+	//Find max enabled opp (1 MHZ steps)
+	freq = 0;
+	while (!IS_ERR(temp_opp = opp_find_freq_ceil(mpu_dev, &freq))) {
+		freq = freq + (1000*1000);
+	}
+	if(freq == 0)
+		return -EINVAL;
+	freq = freq - (1000*1000);
+
+	return sprintf(buf, "%lu\n", freq / (1000*1000));
+}
+
+static ssize_t overclock_max_freq_store(struct kobject *k,
+        struct kobj_attribute *attr, const char *buf, size_t n)
+{
+	unsigned int freq;
+	unsigned int help_freq;
+	struct device *mpu_dev = omap2_get_mpuss_device();
+	struct omap_opp *temp_opp;
+	struct omap_opp *max_opp;
+
+	if(IS_ERR(mpu_dev) || IS_ERR(mpu_freq_table))
+		return -EINVAL;
+
+	//Find max enabled opp (1 MHZ steps)
+	help_freq = 0;
+	while (!IS_ERR(max_opp = opp_find_freq_ceil(mpu_dev, &help_freq))) {
+		help_freq = help_freq + (1000*1000);
+	}
+	if(help_freq == 0)
+		return -EINVAL;
+	help_freq = help_freq - (1000*1000);
+
+	max_opp = opp_find_freq_exact(mpu_dev, help_freq, true);
+	if(IS_ERR(max_opp))
+		return -EINVAL;
+
+	if (sscanf(buf, "%u", &freq) == 1) {
+		//Hard coded clock limits
+		if (freq > 150 && freq < 1500) {
+			//Convert Megahertz to Hertz
+			freq *= (1000*1000);
+			
+			//Check if opp already exists
+			temp_opp = opp_find_freq_exact(mpu_dev, freq, true);
+			if (!IS_ERR(temp_opp)) {
+				//Exists and is enabled => nothing to do
+				return -EINVAL;
+			}
+
+			temp_opp = opp_find_freq_exact(mpu_dev, freq, false);
+			if (!IS_ERR(temp_opp)) {
+				//Exists but is disabled => enable
+				opp_disable(max_opp);
+				opp_enable(temp_opp);
+			} else if (IS_ERR(temp_opp)) {
+				//At this point, we are sure that there is no such opp, and we need a new one
+				opp_disable(max_opp);
+				struct omap_opp_def new_opp_def[] = {
+					OMAP_OPP_DEF("mpu", true,  freq,  1387500),
+				};
+				opp_add(new_opp_def);
+			}
+		} else
+		return -EINVAL;
+	} else
+	return -EINVAL;
+	return n;
 }
 
 late_initcall(omap_cpufreq_init);
