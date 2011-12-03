@@ -327,8 +327,10 @@ static ssize_t overclock_max_freq_store(struct kobject *k,
 	struct device *mpu_dev = omap2_get_mpuss_device();
 	struct omap_opp *temp_opp;
 	struct omap_opp *max_opp;
+	struct cpufreq_policy *mpu_policy = cpufreq_cpu_get(0);
+	struct cpufreq_frequency_table *mpu_freq_table = *omap_pm_cpu_get_freq_table();
 
-	if(IS_ERR(mpu_dev) || IS_ERR(mpu_freq_table))
+	if(IS_ERR(mpu_dev) || IS_ERR(mpu_policy) || IS_ERR(mpu_freq_table))
 		return -EINVAL;
 
 	//Find max enabled opp (1 MHZ steps)
@@ -346,7 +348,7 @@ static ssize_t overclock_max_freq_store(struct kobject *k,
 
 	if (sscanf(buf, "%u", &freq) == 1) {
 		//Hard coded clock limits
-		if (freq > 150 && freq < 1500) {
+		if (freq > 800 && freq < 1300) {
 			//Convert Megahertz to Hertz
 			freq *= (1000*1000);
 			
@@ -362,6 +364,16 @@ static ssize_t overclock_max_freq_store(struct kobject *k,
 				//Exists but is disabled => enable
 				opp_disable(max_opp);
 				opp_enable(temp_opp);
+
+				mpu_freq_table[3].frequency = freq/1000;
+
+				mpu_policy->cpuinfo.max_freq = freq/1000;
+				mpu_policy->max = freq/1000;
+				mpu_policy->user_policy.max = freq/1000;
+
+				opp_exit_cpufreq_table(&freq_table);
+				freq_table = mpu_freq_table;
+				opp_init_cpufreq_table(mpu_dev, &freq_table);
 			} else if (IS_ERR(temp_opp)) {
 				//At this point, we are sure that there is no such opp, and we need a new one
 				opp_disable(max_opp);
@@ -369,6 +381,16 @@ static ssize_t overclock_max_freq_store(struct kobject *k,
 					OMAP_OPP_DEF("mpu", true,  freq,  1387500),
 				};
 				opp_add(new_opp_def);
+
+				mpu_freq_table[3].frequency = freq/1000;
+
+				mpu_policy->cpuinfo.max_freq = freq/1000;
+				mpu_policy->max = freq/1000;
+				mpu_policy->user_policy.max = freq/1000;
+
+				opp_exit_cpufreq_table(&freq_table);
+				freq_table = mpu_freq_table;
+				opp_init_cpufreq_table(mpu_dev, &freq_table);
 			}
 		} else
 		return -EINVAL;
