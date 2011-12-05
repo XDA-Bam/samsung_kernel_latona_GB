@@ -438,6 +438,7 @@ static ssize_t overclock_store(struct kobject *k,
 
 				mpu_freq_table[target_opp_nr].frequency = freq/1000;
 
+				//Fix policy
 				if(target_opp_nr == 0) {
 					mpu_policy->cpuinfo.min_freq = freq/1000;
 					mpu_policy->min = freq/1000;
@@ -448,9 +449,13 @@ static ssize_t overclock_store(struct kobject *k,
 					mpu_policy->user_policy.max = freq/1000;
 				}
 
+				//Fix freq_table
 				opp_exit_cpufreq_table(&freq_table);
 				freq_table = mpu_freq_table;
 				opp_init_cpufreq_table(mpu_dev, &freq_table);
+
+				//Fix stats
+				cpufreq_stats_update_freq_table(freq_table, 0);
 			} else if (IS_ERR(temp_opp)) {
 				//At this point, we are sure that there is no such opp, and we need a new one
 				opp_disable(old_opp);
@@ -461,6 +466,7 @@ static ssize_t overclock_store(struct kobject *k,
 
 				mpu_freq_table[target_opp_nr].frequency = freq/1000;
 
+				//Fix policy
 				if(target_opp_nr == 0) {
 					mpu_policy->cpuinfo.min_freq = freq/1000;
 					mpu_policy->min = freq/1000;
@@ -471,9 +477,13 @@ static ssize_t overclock_store(struct kobject *k,
 					mpu_policy->user_policy.max = freq/1000;
 				}
 
+				//Fix freq_table
 				opp_exit_cpufreq_table(&freq_table);
 				freq_table = mpu_freq_table;
 				opp_init_cpufreq_table(mpu_dev, &freq_table);
+
+				//Fix cpufreq stats
+				cpufreq_stats_update_freq_table(freq_table, 0);
 			}
 		} else
 		return -EINVAL;
