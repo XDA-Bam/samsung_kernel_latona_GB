@@ -17,6 +17,8 @@
 #include <plat/omap-pm.h>
 #include <plat/omap_device.h>
 #include <plat/common.h>
+#include <plat/opp.h>
+#include <plat/voltage.h>
 
 #include "omap3-opp.h"
 #include "opp44xx.h"
@@ -57,6 +59,23 @@ struct device *omap4_get_dsp_device(void)
 EXPORT_SYMBOL(omap4_get_dsp_device);
 
 #ifdef CONFIG_OMAP_PM
+/* Overclock vdd sysfs interface */
+static ssize_t overclock_vdd_show(struct kobject *, struct kobj_attribute *,
+              char *);
+static ssize_t overclock_vdd_store(struct kobject *k, struct kobj_attribute *,
+			  const char *buf, size_t n);
+
+
+static struct kobj_attribute overclock_vdd_opp1_attr =
+    __ATTR(overclock_vdd_opp1, 0644, overclock_vdd_show, overclock_vdd_store);
+static struct kobj_attribute overclock_vdd_opp2_attr =
+    __ATTR(overclock_vdd_opp2, 0644, overclock_vdd_show, overclock_vdd_store);
+static struct kobj_attribute overclock_vdd_opp3_attr =
+    __ATTR(overclock_vdd_opp3, 0644, overclock_vdd_show, overclock_vdd_store);
+static struct kobj_attribute overclock_vdd_opp4_attr =
+    __ATTR(overclock_vdd_opp4, 0644, overclock_vdd_show, overclock_vdd_store);
+
+/* PM stuff */
 static ssize_t vdd_opp_show(struct kobject *, struct kobj_attribute *, char *);
 static ssize_t vdd_opp_store(struct kobject *k, struct kobj_attribute *,
 			  const char *buf, size_t n);
@@ -72,6 +91,119 @@ static struct kobj_attribute vdd2_lock_attr =
 static struct kobj_attribute dsp_freq_attr =
 	__ATTR(dsp_freq, 0644, vdd_opp_show, vdd_opp_store);
 
+/* Overclock vdd sysfs interface */
+static ssize_t overclock_vdd_show(struct kobject *kobj,
+        struct kobj_attribute *attr, char *buf)
+{
+	unsigned int target_opp;
+	unsigned long *vdd = -1;
+	unsigned long *temp_vdd = -1;
+	char *voltdm_name = "mpu";
+	struct device *mpu_dev = omap2_get_mpuss_device();
+	struct cpufreq_frequency_table *mpu_freq_table = *omap_pm_cpu_get_freq_table();
+	struct omap_opp *temp_opp;
+	struct voltagedomain *mpu_voltdm;
+	struct omap_volt_data *mpu_voltdata;
+
+	if(!mpu_dev || !mpu_freq_table)
+		return -EINVAL;
+
+	if ( attr == &overclock_vdd_opp1_attr) {
+		target_opp = 0;
+	}
+	if ( attr == &overclock_vdd_opp2_attr) {
+		target_opp = 1;
+	}
+	if ( attr == &overclock_vdd_opp3_attr) {
+		target_opp = 2;
+	}
+	if ( attr == &overclock_vdd_opp4_attr) {
+		target_opp = 3;
+	}
+
+	temp_opp = opp_find_freq_exact(mpu_dev, mpu_freq_table[target_opp].frequency*1000, true);
+	if(IS_ERR(temp_opp))
+		return -EINVAL;
+
+	temp_vdd = opp_get_voltage(temp_opp);
+	mpu_voltdm = omap_voltage_domain_get(voltdm_name);
+	mpu_voltdata = omap_voltage_get_voltdata(mpu_voltdm, temp_vdd);
+	vdd = mpu_voltdata->volt_nominal;
+
+	return sprintf(buf, "%lu\n", vdd);
+}
+
+static ssize_t overclock_vdd_store(struct kobject *k,
+        struct kobj_attribute *attr, const char *buf, size_t n)
+{
+/*	unsigned int target_opp_nr;
+	u32 vdd = 0;
+	u32 divider = 500;
+	unsigned long temp_vdd = 0;
+	unsigned int vdd_lower_limit = 0;
+	unsigned int vdd_upper_limit = 0;
+	char *voltdm_name = "mpu";
+	unsigned int freq;
+	struct device *mpu_dev = omap2_get_mpuss_device();
+	struct cpufreq_frequency_table *mpu_freq_table = *omap_pm_cpu_get_freq_table();
+	struct omap_opp *temp_opp;
+	struct voltagedomain *mpu_voltdm;
+	struct omap_volt_data *mpu_voltdata;
+
+	if(!mpu_dev || !mpu_freq_table)
+		return -EINVAL;
+
+	if ( attr == &overclock_vdd_opp1_attr) {
+		target_opp_nr = 0;
+		vdd_lower_limit = 900000;
+		vdd_upper_limit = 1200000;
+	}
+	if ( attr == &overclock_vdd_opp2_attr) {
+		target_opp_nr = 1;
+		vdd_lower_limit = 900000;
+		vdd_upper_limit = 1300000;
+	}
+	if ( attr == &overclock_vdd_opp3_attr) {
+		target_opp_nr = 2;
+		vdd_lower_limit = 900000;
+		vdd_upper_limit = 1400000;
+	}
+	if ( attr == &overclock_vdd_opp4_attr) {
+		target_opp_nr = 3;
+		vdd_lower_limit = 900000;
+		vdd_upper_limit = 1500000;
+	}
+
+	temp_opp = opp_find_freq_exact(mpu_dev, mpu_freq_table[target_opp_nr].frequency*1000, true);
+	if(IS_ERR(temp_opp))
+		return -EINVAL;
+
+	freq = temp_opp->rate;
+	temp_vdd = opp_get_voltage(temp_opp);
+	mpu_voltdm = omap_voltage_domain_get(voltdm_name);
+	mpu_voltdata = omap_voltage_get_voltdata(mpu_voltdm, temp_vdd);
+
+	if (sscanf(buf, "%u", &vdd) == 1) {
+		// Enforce limits and check if voltage to be set is multiple of 500uV
+		if(vdd <= vdd_upper_limit && vdd >= vdd_lower_limit && vdd % divider == 0) {
+			//Handle opp
+			opp_disable(temp_opp);
+			struct omap_opp_def new_opp_def[] = {
+				OMAP_OPP_DEF("mpu", true,  freq, vdd),
+			};
+			mpu_voltdata->volt_nominal = vdd;
+			opp_add(new_opp_def);
+
+			//Set
+			omap_voltage_scale_vdd(mpu_voltdm, mpu_voltdata);
+			return n;
+		}
+	}
+*/
+	return -EINVAL;
+}
+
+/* PM stuff */
 static int vdd1_locked = 0;
 static int vdd2_locked = 0;
 static struct device sysfs_cpufreq_dev;
@@ -335,6 +467,28 @@ static int __init omap2_common_pm_init(void)
 		error = sysfs_create_file(power_kobj, &vdd2_lock_attr.attr);
 		if (error) {
 			printk(KERN_ERR "%s: sysfs_create_file(vdd2_lock) failed %d\n", __func__, error);
+			return error;
+		}
+
+		/* Overclock vdd sysfs interface */
+		error = sysfs_create_file(power_kobj, &overclock_vdd_opp1_attr.attr);
+		if (error) {
+			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
+			return error;
+		}
+		error = sysfs_create_file(power_kobj, &overclock_vdd_opp2_attr.attr);
+		if (error) {
+			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
+			return error;
+		}
+		error = sysfs_create_file(power_kobj, &overclock_vdd_opp3_attr.attr);
+		if (error) {
+			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
+			return error;
+		}
+		error = sysfs_create_file(power_kobj, &overclock_vdd_opp4_attr.attr);
+		if (error) {
+			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
 			return error;
 		}
 	}
