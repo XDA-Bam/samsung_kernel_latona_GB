@@ -379,25 +379,21 @@ static ssize_t overclock_store(struct kobject *k,
 	// Hard coded clock limits
 	if ( attr == &overclock_opp1_attr) {
 		target_opp_nr = 0;
-		volt_nominal = 1025000;
 		opp_lower_limit = 100;
 		opp_upper_limit = 500;
 	}
 	if ( attr == &overclock_opp2_attr) {
 		target_opp_nr = 1;
-		volt_nominal = 1200000;
 		opp_lower_limit = 500;
 		opp_upper_limit = 700;
 	}
 	if ( attr == &overclock_opp3_attr) {
 		target_opp_nr = 2;
-		volt_nominal = 1330000;
 		opp_lower_limit = 700;
 		opp_upper_limit = 900;
 	}
 	if ( attr == &overclock_opp4_attr) {
 		target_opp_nr = 3;
-		volt_nominal = 1387500;
 		opp_lower_limit = 900;
 		opp_upper_limit = 1300;
 	}
@@ -417,8 +413,13 @@ static ssize_t overclock_store(struct kobject *k,
 	if(IS_ERR(old_opp))
 		return -EINVAL;
 
+	//We do not handle volts here. Just set the original value
+	volt_nominal = opp_get_voltage(old_opp);
+	if(IS_ERR(volt_nominal))
+		return -EINVAL;
+
 	if (sscanf(buf, "%u", &freq) == 1) {
-		//Set clock limits
+		//Enforce clock limits
 		if (freq >= opp_lower_limit && freq <= opp_upper_limit) {
 			//Convert Megahertz to Hertz
 			freq *= (1000*1000);
