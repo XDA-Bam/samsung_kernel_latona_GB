@@ -363,13 +363,11 @@ static ssize_t overclock_store(struct kobject *k,
 	unsigned int freq;
 	unsigned int help_freq;
 	unsigned int target_opp_nr;
-	unsigned int volt_nominal = 1387500;
 	unsigned int opp_lower_limit = 0;
 	unsigned int opp_upper_limit = 0;
 	unsigned int counter;
 	struct device *mpu_dev = omap2_get_mpuss_device();
 	struct omap_opp *temp_opp;
-	struct omap_opp *old_opp;
 	struct cpufreq_policy *mpu_policy = cpufreq_cpu_get(0);
 	struct cpufreq_frequency_table *mpu_freq_table = *omap_pm_cpu_get_freq_table();
 
@@ -384,18 +382,18 @@ static ssize_t overclock_store(struct kobject *k,
 	}
 	if ( attr == &overclock_opp2_attr) {
 		target_opp_nr = 1;
-		opp_lower_limit = 500;
+		opp_lower_limit = 501;
 		opp_upper_limit = 700;
 	}
 	if ( attr == &overclock_opp3_attr) {
 		target_opp_nr = 2;
-		opp_lower_limit = 700;
+		opp_lower_limit = 701;
 		opp_upper_limit = 900;
 	}
 	if ( attr == &overclock_opp4_attr) {
 		target_opp_nr = 3;
-		opp_lower_limit = 900;
-		opp_upper_limit = 1300;
+		opp_lower_limit = 901;
+		opp_upper_limit = 1500;
 	}
 
 	//Find opp (1 MHZ steps)
@@ -409,13 +407,8 @@ static ssize_t overclock_store(struct kobject *k,
 		return -EINVAL;
 	help_freq = help_freq - (1000*1000);
 
-	old_opp = opp_find_freq_exact(mpu_dev, help_freq, true);
-	if(IS_ERR(old_opp))
-		return -EINVAL;
-
-	//We do not handle volts here. Just set the original value
-	volt_nominal = opp_get_voltage(old_opp);
-	if(IS_ERR(volt_nominal))
+	temp_opp = opp_find_freq_exact(mpu_dev, help_freq, true);
+	if(IS_ERR(temp_opp))
 		return -EINVAL;
 
 	if (sscanf(buf, "%u", &freq) == 1) {
@@ -423,69 +416,32 @@ static ssize_t overclock_store(struct kobject *k,
 		if (freq >= opp_lower_limit && freq <= opp_upper_limit) {
 			//Convert Megahertz to Hertz
 			freq *= (1000*1000);
-			
-			//Check if opp already exists
-			temp_opp = opp_find_freq_exact(mpu_dev, freq, true);
-			if (!IS_ERR(temp_opp)) {
-				//Exists and is enabled => nothing to do
-				return -EINVAL;
+
+			//Set new clocks
+			opp_disable(temp_opp);
+			temp_opp->rate = freq;
+			mpu_freq_table[target_opp_nr].frequency = freq/1000;
+
+			//Fix policy
+			if(target_opp_nr == 0) {
+				mpu_policy->cpuinfo.min_freq = freq/1000;
+				mpu_policy->min = freq/1000;
+				mpu_policy->user_policy.min = freq/1000;
+			} else if(target_opp_nr == 3) {
+				mpu_policy->cpuinfo.max_freq = freq/1000;
+				mpu_policy->max = freq/1000;
+				mpu_policy->user_policy.max = freq/1000;
 			}
 
-			temp_opp = opp_find_freq_exact(mpu_dev, freq, false);
-			if (!IS_ERR(temp_opp)) {
-				//Exists but is disabled => enable
-				opp_disable(old_opp);
-				opp_enable(temp_opp);
+			opp_enable(temp_opp);
 
-				mpu_freq_table[target_opp_nr].frequency = freq/1000;
+			//Fix freq_table
+			opp_exit_cpufreq_table(&freq_table);
+			freq_table = mpu_freq_table;
+			opp_init_cpufreq_table(mpu_dev, &freq_table);
 
-				//Fix policy
-				if(target_opp_nr == 0) {
-					mpu_policy->cpuinfo.min_freq = freq/1000;
-					mpu_policy->min = freq/1000;
-					mpu_policy->user_policy.min = freq/1000;
-				} else if(target_opp_nr == 3) {
-					mpu_policy->cpuinfo.max_freq = freq/1000;
-					mpu_policy->max = freq/1000;
-					mpu_policy->user_policy.max = freq/1000;
-				}
-
-				//Fix freq_table
-				opp_exit_cpufreq_table(&freq_table);
-				freq_table = mpu_freq_table;
-				opp_init_cpufreq_table(mpu_dev, &freq_table);
-
-				//Fix stats
-				cpufreq_stats_update_freq_table(freq_table, 0);
-			} else if (IS_ERR(temp_opp)) {
-				//At this point, we are sure that there is no such opp, and we need a new one
-				opp_disable(old_opp);
-				struct omap_opp_def new_opp_def[] = {
-					OMAP_OPP_DEF("mpu", true,  freq, volt_nominal),
-				};
-				opp_add(new_opp_def);
-
-				mpu_freq_table[target_opp_nr].frequency = freq/1000;
-
-				//Fix policy
-				if(target_opp_nr == 0) {
-					mpu_policy->cpuinfo.min_freq = freq/1000;
-					mpu_policy->min = freq/1000;
-					mpu_policy->user_policy.min = freq/1000;
-				} else if(target_opp_nr == 3) {
-					mpu_policy->cpuinfo.max_freq = freq/1000;
-					mpu_policy->max = freq/1000;
-					mpu_policy->user_policy.max = freq/1000;
-				}
-
-				//Fix freq_table
-				opp_exit_cpufreq_table(&freq_table);
-				freq_table = mpu_freq_table;
-				opp_init_cpufreq_table(mpu_dev, &freq_table);
-
-				//Fix cpufreq stats
-				cpufreq_stats_update_freq_table(freq_table, 0);
-			}
+			//Fix stats
+			cpufreq_stats_update_freq_table(freq_table, 0);
 		} else
 		return -EINVAL;
 	} else
