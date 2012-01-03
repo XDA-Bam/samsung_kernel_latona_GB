@@ -368,6 +368,7 @@ static struct omap_volt_data omap36xx_vdd1_volt_data[] = {
 	{.volt_nominal = 1200000, .sr_oppmargin = 37500, .sr_errminlimit = 0xF9, .vp_errgain = 0x16, .abb_type = NOMINAL_OPP},
 	{.volt_nominal = 1330000, .sr_oppmargin = 37500, .sr_errminlimit = 0xFA, .vp_errgain = 0x23, .abb_type = NOMINAL_OPP},
 	{.volt_nominal = 1387500, .sr_oppmargin = 62500,  .sr_errminlimit = 0xFA, .vp_errgain = 0x27, .abb_type = FAST_OPP},
+	{.volt_nominal = 1420000, .sr_oppmargin = 62500, .sr_errminlimit = 0xFA, .vp_errgain = 0x27, .abb_type = FAST_OPP},
 };
 
 /* VDD2 */
@@ -2635,6 +2636,104 @@ int omap_voltage_unregister_notifier(struct voltagedomain *voltdm,
 	vdd = container_of(voltdm, struct omap_vdd_info, voltdm);
 	return srcu_notifier_chain_unregister(
 				&vdd->volt_change_notify_list, nb);
+}
+
+/**
+ * omap_overclock_update_voltage : Voltage update helper for overclocking
+ */
+int omap_overclock_update_voltage(struct voltagedomain *voltdm,
+		int opp_nr, long new_volt)
+{
+	struct omap_vdd_info *vdd;
+	int is_volt_scaled = 0, i;
+	bool is_sr_disabled = false;
+	unsigned long volt;
+	unsigned long curr_volt;
+	struct omap_volt_data *vnom;
+	struct plist_node *node;
+
+	if (!voltdm || IS_ERR(voltdm)) {
+		pr_warning("%s: VDD specified does not exist!\n", __func__);
+		return -EINVAL;
+	}
+
+	vdd = container_of(voltdm, struct omap_vdd_info, voltdm);
+
+	//Lock voltage scaling
+	mutex_lock(&vdd->scaling_mutex);
+
+	curr_volt = omap_get_operation_voltage(
+			omap_voltage_get_nom_volt(voltdm));
+
+	vnom = omap_voltage_get_nom_volt(voltdm);
+
+	curr_volt = vnom->volt_nominal;
+
+	//Find the highest voltage for this vdd
+	node = plist_last(&vdd->user_list);
+	volt = node->prio;
+
+	if (curr_volt != volt) {
+		//Disable Smart Reflex
+		omap_smartreflex_disable_reset_volt(voltdm);
+		is_sr_disabled = true;
+
+		//Update all appearances of old voltage
+		vdd->volt_data[opp_nr].volt_nominal = new_volt;
+		vdd->volt_data[opp_nr].volt_calibrated = 0;
+		vdd->volt_data[opp_nr].volt_dynamic_nominal = new_volt;
+
+		vdd->nominal_volt[opp_nr].volt_nominal = new_volt;
+		vdd->nominal_volt[opp_nr].volt_calibrated = 0;
+		vdd->nominal_volt[opp_nr].volt_dynamic_nominal = new_volt;
+	}
+
+	//Scale
+	if (curr_volt == volt) {
+		is_volt_scaled = 1;
+	} else if (curr_volt < volt) {
+		omap_voltage_scale_vdd(voltdm,
+				omap_voltage_get_voltdata(voltdm, volt));
+		is_volt_scaled = 1;
+	}
+
+/*
+	for (i = 0; i < vdd->dev_count; i++) {
+		struct omap_opp *opp;
+		unsigned long freq;
+
+		opp = opp_find_voltage(vdd->dev_list[i], volt, true);
+		if (IS_ERR(opp)) {
+			dev_err(vdd->dev_list[i], "%s: Unable to find OPP for"
+				"volt%ld\n", __func__, volt);
+			continue;
+		}
+
+		freq = opp_get_freq(opp);
+
+		if (freq == opp_get_rate(vdd->dev_list[i]))
+			continue;
+
+		opp_set_rate(vdd->dev_list[i], freq);
+	}
+*/
+
+	//Unlock voltage scaling and enable Smart Reflex
+	if (is_sr_disabled)
+		omap_smartreflex_enable(voltdm);
+	mutex_unlock(&vdd->scaling_mutex);
+
+	//Calculate the voltages for dependent vdd's
+	if (calc_dep_vdd_volt(&vdd->vdd_device, vdd, new_volt)) {
+		pr_warning("%s: Error in calculating dependent vdd voltages"
+			"for vdd_%s\n", __func__, voltdm->name);
+		return -EINVAL;
+	}
+
+	//Scale dependent vdds
+	scale_dep_vdd(vdd);
+
+	return 0;
 }
 
 /**
