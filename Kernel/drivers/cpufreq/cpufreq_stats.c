@@ -20,9 +20,9 @@
 #include <linux/kobject.h>
 #include <linux/spinlock.h>
 #include <linux/notifier.h>
-#ifdef CONFIG_MACH_SAMSUNG_LATONA
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 #include <linux/err.h>
-#endif /* CONFIG_MACH_SAMSUNG_LATONA */
+#endif
 #include <asm/cputime.h>
 
 static spinlock_t cpufreq_stats_lock;
@@ -340,7 +340,8 @@ static struct notifier_block notifier_trans_block = {
 	.notifier_call = cpufreq_stat_notifier_trans
 };
 
-#ifdef CONFIG_MACH_SAMSUNG_LATONA
+/* Overclock stats update helper */
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 int cpufreq_stats_update_freq_table(struct cpufreq_frequency_table *table, unsigned int cpu)
 {
 	unsigned int i;
@@ -358,7 +359,7 @@ int cpufreq_stats_update_freq_table(struct cpufreq_frequency_table *table, unsig
 
 	return 1;
 }
-#endif /* CONFIG_MACH_SAMSUNG_LATONA */
+#endif
 
 static int __init cpufreq_stats_init(void)
 {

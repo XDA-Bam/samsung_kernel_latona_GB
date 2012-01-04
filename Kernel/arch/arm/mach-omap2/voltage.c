@@ -2641,6 +2641,7 @@ int omap_voltage_unregister_notifier(struct voltagedomain *voltdm,
 /**
  * omap_overclock_update_voltage : Voltage update helper for overclocking
  */
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 int omap_overclock_update_voltage(struct voltagedomain *voltdm,
 		int opp_nr, long new_volt)
 {
@@ -2735,6 +2736,7 @@ int omap_overclock_update_voltage(struct voltagedomain *voltdm,
 
 	return 0;
 }
+#endif
 
 /**
  * omap_voltage_init : Volatage init API which does VP and VC init.

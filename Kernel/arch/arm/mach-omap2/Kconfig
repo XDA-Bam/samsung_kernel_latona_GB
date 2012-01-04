@@ -292,6 +292,16 @@ config SAMSUNG_REL_HW_REV
 	depends on MACH_OMAP_SAMSUNG && SAMSUNG_HW_REL_BOARD
 	default 0
 
+config SAMSUNG_LATONA_OVERCLOCK_ENABLED
+	bool "Enable overclocking and voltage control sysfs interfaces"
+	depends on MACH_SAMSUNG_LATONA
+	default n
+
+config SAMSUNG_LATONA_OPP5_ENABLED
+	bool "Enable fifth operating point (1.2 GHz)"
+	depends on MACH_SAMSUNG_LATONA
+	default n
+
 config SAMSUNG_CONSOLE_UART
 	int "used console uart port"
         default 3

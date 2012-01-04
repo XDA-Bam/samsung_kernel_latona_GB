@@ -57,6 +57,7 @@ static cpumask_var_t omap4_cpumask;
 static int cpus_initialized;
 #endif
 
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 static ssize_t overclock_show(struct kobject *, struct kobj_attribute *,
               char *);
 static ssize_t overclock_store(struct kobject *k, struct kobj_attribute *,
@@ -73,6 +74,7 @@ static struct kobj_attribute overclock_opp4_attr =
     __ATTR(overclock_opp4, 0644, overclock_show, overclock_store);
 static struct kobj_attribute overclock_opp5_attr =
     __ATTR(overclock_opp5, 0644, overclock_show, overclock_store);
+#endif
 
 
 /* TODO: Add support for SDRAM timing changes */
@@ -263,6 +265,7 @@ static int omap_cpu_init(struct cpufreq_policy *policy)
 	cpus_initialized++;
 #endif
 
+	#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 	error = sysfs_create_file(power_kobj, &overclock_opp1_attr.attr);
 	if (error) {
 		printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
@@ -283,11 +286,14 @@ static int omap_cpu_init(struct cpufreq_policy *policy)
 		printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
 		return error;
 	}
-	error = sysfs_create_file(power_kobj, &overclock_opp5_attr.attr);
-	if (error) {
-		printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
-		return error;
-	}
+		#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+		error = sysfs_create_file(power_kobj, &overclock_opp5_attr.attr);
+		if (error) {
+			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
+			return error;
+		}
+		#endif
+	#endif
 
 	return 0;
 }
@@ -324,6 +330,7 @@ static int __init omap_cpufreq_init(void)
 	return cpufreq_register_driver(&omap_driver);
 }
 
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 static ssize_t overclock_show(struct kobject *kobj,
         struct kobj_attribute *attr, char *buf)
 {
@@ -348,9 +355,11 @@ static ssize_t overclock_show(struct kobject *kobj,
 	if ( attr == &overclock_opp4_attr) {
 		target_opp_nr = 3;
 	}
-	if ( attr == &overclock_opp5_attr) {
-		target_opp_nr = 4;
-	}
+		#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+		if ( attr == &overclock_opp5_attr) {
+			target_opp_nr = 4;
+		}
+		#endif
 
 	//Find opp (1 MHZ steps)
 	counter = 0;
@@ -379,7 +388,6 @@ static ssize_t overclock_store(struct kobject *k,
 	unsigned int opp_lower_limit = 0;
 	unsigned int opp_upper_limit = 0;
 	unsigned int counter;
-	unsigned int opp_count;
 	struct device *mpu_dev = omap2_get_mpuss_device();
 	struct omap_opp *temp_opp;
 	struct cpufreq_policy *mpu_policy = cpufreq_cpu_get(0);
@@ -388,7 +396,6 @@ static ssize_t overclock_store(struct kobject *k,
 	if(IS_ERR(mpu_dev) || IS_ERR(mpu_policy) || IS_ERR(mpu_freq_table))
 		return -EINVAL;
 
-	opp_count = opp_get_opp_count(mpu_dev);
 
 	// Hard coded clock limits
 	if ( attr == &overclock_opp1_attr) {
@@ -411,15 +418,13 @@ static ssize_t overclock_store(struct kobject *k,
 		opp_lower_limit = 901;
 		opp_upper_limit = 1100;
 	}
+	#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
 	if ( attr == &overclock_opp5_attr) {
-		//If this OPP isn't enabled, it cannot be modified
-		if(opp_count == 3)
-			return -EINVAL;
-
 		target_opp_nr = 4;
 		opp_lower_limit = 1101;
 		opp_upper_limit = 1500;
 	}
+	#endif
 
 	//Find opp (1 MHZ steps)
 	counter = 0;
@@ -451,15 +456,20 @@ static ssize_t overclock_store(struct kobject *k,
 				mpu_policy->cpuinfo.min_freq = freq/1000;
 				mpu_policy->min = freq/1000;
 				mpu_policy->user_policy.min = freq/1000;
-			} else if(opp_count == 3 && target_opp_nr == 3) {
-					mpu_policy->cpuinfo.max_freq = freq/1000;
-					mpu_policy->max = freq/1000;
-					mpu_policy->user_policy.max = freq/1000;
-			} else if(opp_count == 4 && target_opp_nr == 4) {
+			} 
+			#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+			else if(target_opp_nr == 4) {
 					mpu_policy->cpuinfo.max_freq = freq/1000;
 					mpu_policy->max = freq/1000;
 					mpu_policy->user_policy.max = freq/1000;
 			}
+			#else
+			else if(target_opp_nr == 3) {
+					mpu_policy->cpuinfo.max_freq = freq/1000;
+					mpu_policy->max = freq/1000;
+					mpu_policy->user_policy.max = freq/1000;
+			}
+			#endif
 
 			opp_enable(temp_opp);
 
@@ -476,6 +486,7 @@ static ssize_t overclock_store(struct kobject *k,
 	return -EINVAL;
 	return n;
 }
+#endif
 
 late_initcall(omap_cpufreq_init);
 

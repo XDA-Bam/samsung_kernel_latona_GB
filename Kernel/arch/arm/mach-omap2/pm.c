@@ -17,8 +17,10 @@
 #include <plat/omap-pm.h>
 #include <plat/omap_device.h>
 #include <plat/common.h>
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 #include <plat/opp.h>
 #include <plat/voltage.h>
+#endif
 #include <plat/smartreflex.h>
 
 #include "omap3-opp.h"
@@ -60,7 +62,9 @@ struct device *omap4_get_dsp_device(void)
 EXPORT_SYMBOL(omap4_get_dsp_device);
 
 #ifdef CONFIG_OMAP_PM
+
 /* Overclock vdd sysfs interface */
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 static ssize_t overclock_vdd_show(struct kobject *, struct kobj_attribute *,
               char *);
 static ssize_t overclock_vdd_store(struct kobject *k, struct kobj_attribute *,
@@ -75,8 +79,11 @@ static struct kobj_attribute overclock_vdd_opp3_attr =
     __ATTR(overclock_vdd_opp3, 0644, overclock_vdd_show, overclock_vdd_store);
 static struct kobj_attribute overclock_vdd_opp4_attr =
     __ATTR(overclock_vdd_opp4, 0644, overclock_vdd_show, overclock_vdd_store);
-static struct kobj_attribute overclock_vdd_opp5_attr =
-    __ATTR(overclock_vdd_opp5, 0644, overclock_vdd_show, overclock_vdd_store);
+	#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+	static struct kobj_attribute overclock_vdd_opp5_attr =
+	    __ATTR(overclock_vdd_opp5, 0644, overclock_vdd_show, overclock_vdd_store);
+	#endif
+#endif
 
 /* PM stuff */
 static ssize_t vdd_opp_show(struct kobject *, struct kobj_attribute *, char *);
@@ -95,6 +102,7 @@ static struct kobj_attribute dsp_freq_attr =
 	__ATTR(dsp_freq, 0644, vdd_opp_show, vdd_opp_store);
 
 /* Overclock vdd sysfs interface */
+#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 static ssize_t overclock_vdd_show(struct kobject *kobj,
         struct kobj_attribute *attr, char *buf)
 {
@@ -123,9 +131,11 @@ static ssize_t overclock_vdd_show(struct kobject *kobj,
 	if ( attr == &overclock_vdd_opp4_attr) {
 		target_opp = 3;
 	}
-	if ( attr == &overclock_vdd_opp5_attr) {
-		target_opp = 4;
-	}
+		#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+		if ( attr == &overclock_vdd_opp5_attr) {
+			target_opp = 4;
+		}
+		#endif
 
 	temp_opp = opp_find_freq_exact(mpu_dev, mpu_freq_table[target_opp].frequency*1000, true);
 	if(IS_ERR(temp_opp))
@@ -180,11 +190,13 @@ static ssize_t overclock_vdd_store(struct kobject *k,
 		vdd_lower_limit = 1100000;
 		vdd_upper_limit = 1500000;
 	}
-	if ( attr == &overclock_vdd_opp5_attr) {
-		target_opp_nr = 4;
-		vdd_lower_limit = 1200000;
-		vdd_upper_limit = 1600000;
-	}
+		#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+		if ( attr == &overclock_vdd_opp5_attr) {
+			target_opp_nr = 4;
+			vdd_lower_limit = 1200000;
+			vdd_upper_limit = 1600000;
+		}
+		#endif
 
 	temp_opp = opp_find_freq_exact(mpu_dev, mpu_freq_table[target_opp_nr].frequency*1000, true);
 	if(IS_ERR(temp_opp))
@@ -221,6 +233,7 @@ static ssize_t overclock_vdd_store(struct kobject *k,
 	}*/
 	return -EINVAL;
 }
+#endif
 
 /* PM stuff */
 static int vdd1_locked = 0;
@@ -490,6 +503,7 @@ static int __init omap2_common_pm_init(void)
 		}
 
 		/* Overclock vdd sysfs interface */
+		#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
 		error = sysfs_create_file(power_kobj, &overclock_vdd_opp1_attr.attr);
 		if (error) {
 			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
@@ -510,11 +524,14 @@ static int __init omap2_common_pm_init(void)
 			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
 			return error;
 		}
-		error = sysfs_create_file(power_kobj, &overclock_vdd_opp5_attr.attr);
-		if (error) {
-			printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
-			return error;
-		}
+			#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+			error = sysfs_create_file(power_kobj, &overclock_vdd_opp5_attr.attr);
+			if (error) {
+				printk(KERN_ERR "sysfs_create_file failed: %d\n", error);
+				return error;
+			}
+			#endif
+		#endif
 	}
 #endif
 

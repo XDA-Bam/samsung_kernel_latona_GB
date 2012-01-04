@@ -444,11 +444,13 @@ static struct opp_frequencies opp_freq_add_table[] __initdata = {
 	.iva =  800000000,
 	.ena = OMAP3630_CONTROL_FUSE_OPP1G_VDD1,
   },
+  #ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
   {
 	.mpu = 1200000000,
 	.iva =   65000000,
 	.ena = OMAP3630_CONTROL_FUSE_OPP1_2G_VDD1,
   },
+  #endif
 
   { 0, 0, 0 },
 };

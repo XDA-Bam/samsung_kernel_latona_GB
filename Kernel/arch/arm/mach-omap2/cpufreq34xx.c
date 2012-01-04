@@ -90,7 +90,11 @@ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
 	/* MPU OPP4 - OPP-SB */
 	OMAP_OPP_DEF("mpu", true,  1000000000, 1387500),
 	/* MPU OPP5 */
+	#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
 	OMAP_OPP_DEF("mpu", true,  1200000000, 1420000),
+	#else
+	OMAP_OPP_DEF("mpu", false,  1200000000, 1420000),
+	#endif
 
 	/* L3 OPP1 - OPP50 */
 	OMAP_OPP_DEF("l3_main", false, 100000000, 930000),     
@@ -106,7 +110,11 @@ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
 	/* DSP OPP4 - OPP-SB */
 	OMAP_OPP_DEF("iva", true, 800000000, 1387500),
 	/* DSP OPP5 */
+	#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
 	OMAP_OPP_DEF("iva", true,  65000000, 1420000),
+	#else
+	OMAP_OPP_DEF("iva", false,  65000000, 1420000),
+	#endif
 };
 static u32 omap36xx_opp_def_size = ARRAY_SIZE(omap36xx_opp_def_list);
 
