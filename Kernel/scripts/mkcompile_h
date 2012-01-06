@@ -34,7 +34,7 @@ if [ -z "$KBUILD_BUILD_VERSION" ]; then
 		echo 0 > .version
 	fi
 else
-	VERSION=$KBUILD_BUILD_VERSION-1
+	VERSION=$KBUILD_BUILD_VERSION
 fi
 
 if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
