@@ -82,18 +82,18 @@ static u32 omap34xx_opp_def_size = ARRAY_SIZE(omap34xx_opp_def_list);
 
 static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
 	/* MPU OPP1 - OPP50 */
-	OMAP_OPP_DEF("mpu", true,  300000000,  1025000), 
+	OMAP_OPP_DEF("mpu", true,  300000000,  1000000), 
 	/* MPU OPP2 - OPP100 */
-	OMAP_OPP_DEF("mpu", true,  600000000,  1200000),   
+	OMAP_OPP_DEF("mpu", true,  600000000,  1162500),   
 	/* MPU OPP3 - OPP-Turbo */
-	OMAP_OPP_DEF("mpu", true,  800000000,   1330000),
+	OMAP_OPP_DEF("mpu", true,  800000000,   1300000),
 	/* MPU OPP4 - OPP-SB */
-	OMAP_OPP_DEF("mpu", true,  1000000000, 1387500),
+	OMAP_OPP_DEF("mpu", true,  1000000000, 1350000),
 	/* MPU OPP5 */
 	#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
-	OMAP_OPP_DEF("mpu", true,  1200000000, 1420000),
+	OMAP_OPP_DEF("mpu", true,  1200000000, 1380000),
 	#else
-	OMAP_OPP_DEF("mpu", false,  1200000000, 1420000),
+	OMAP_OPP_DEF("mpu", false,  1200000000, 1380000),
 	#endif
 
 	/* L3 OPP1 - OPP50 */
@@ -102,18 +102,18 @@ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
 	OMAP_OPP_DEF("l3_main", true, 200000000, 1162500),
 
 	/* DSP OPP1 - OPP50 */
-	OMAP_OPP_DEF("iva", true,  260000000, 1025000),
+	OMAP_OPP_DEF("iva", true,  260000000, 1000000),
 	/* DSP OPP2 - OPP100 */
-	OMAP_OPP_DEF("iva", true,  520000000, 1200000),
+	OMAP_OPP_DEF("iva", true,  520000000, 1162500),
 	/* DSP OPP3 - OPP-Turbo */
-	OMAP_OPP_DEF("iva", true, 660000000, 1330000),
+	OMAP_OPP_DEF("iva", true, 660000000, 1300000),
 	/* DSP OPP4 - OPP-SB */
-	OMAP_OPP_DEF("iva", true, 800000000, 1387500),
+	OMAP_OPP_DEF("iva", true, 800000000, 1350000),
 	/* DSP OPP5 */
 	#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
-	OMAP_OPP_DEF("iva", true,  65000000, 1420000),
+	OMAP_OPP_DEF("iva", true,  65000000, 1380000),
 	#else
-	OMAP_OPP_DEF("iva", false,  65000000, 1420000),
+	OMAP_OPP_DEF("iva", false,  65000000, 1380000),
 	#endif
 };
 static u32 omap36xx_opp_def_size = ARRAY_SIZE(omap36xx_opp_def_list);
