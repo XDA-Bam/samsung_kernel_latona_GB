@@ -577,11 +577,13 @@ void omap_pm_dsp_set_min_opp(u8 opp_id)
 		if (initialize_tables())
 			return;
 
+#if 0	// No need to reset dsp_req_id anymore, as DSP OPP5 is initialized with the correct frequency
 	if (cpu_is_omap3630()) {
 	        /* if the DSP is OPP5 and its freq is 65MHz, then set to OPP1 */
 	        if (dsp_freq_table[dsp_req_id].frequency == 65000)
 	                dsp_req_id = 0;
 	}
+#endif
 
 	/*
 	 *
