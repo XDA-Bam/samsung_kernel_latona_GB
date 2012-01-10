@@ -20,11 +20,13 @@
 #ifdef USE_OMAP_DVFS_LOCK
 #include <plat/omap-pm.h>
 // OMAP3630 OPP Clock Frequency Table
+#define VDD1_OPP5_FREQ         S1200M
 #define VDD1_OPP4_FREQ         S1000M
 #define VDD1_OPP3_FREQ         S800M
 #define VDD1_OPP2_FREQ         S600M
 #define VDD1_OPP1_FREQ         S300M
 
+#define S1200M  1200000000
 #define S1000M  1000000000
 #define S800M   800000000
 #define S600M   600000000
@@ -218,7 +220,11 @@ static ssize_t dvfslock_ctrl(const char *buf, size_t count)
 	if(dlevel) dlevel = 1;
 	
 	printk("+++++DBG dvfs lock level=%d, time=%d, scanVal=%08x\n",dlevel,dtime_msec, gdDvfsctrl);
+	#ifdef CONFIG_SAMSUNG_LATONA_OPP5_ENABLED
+	omap_pm_set_min_mpu_freq(&dvfs_ctrl_device, VDD1_OPP5_FREQ);
+	#else
 	omap_pm_set_min_mpu_freq(&dvfs_ctrl_device, VDD1_OPP4_FREQ);
+	#endif
 	//s5pc110_lock_dvfs_high_level(DVFS_LOCK_TOKEN_6, dlevel);
 	dvfsctrl_locked=1;
 
