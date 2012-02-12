@@ -222,7 +222,6 @@ static ssize_t overclock_vdd_store(struct kobject *k,
 			omap_smartreflex_disable_reset_volt(mpu_voltdm);
 			opp_disable(temp_opp);
 
-//			omap_overclock_update_voltage(mpu_voltdm, target_opp_nr, target_volt);
 			temp_opp->u_volt = target_volt;
 
 			opp_enable(temp_opp);

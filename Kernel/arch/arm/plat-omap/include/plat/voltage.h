@@ -164,11 +164,6 @@ static inline int omap_voltage_unregister_notifier(
 }
 #endif
 
-#ifdef CONFIG_SAMSUNG_LATONA_OVERCLOCK_ENABLED
-int omap_overclock_update_voltage(struct voltagedomain *voltdm,
-		int opp_nr, long new_volt);
-#endif
-
 /* convert volt data to the voltage for the voltage data */
 static inline unsigned long omap_get_operation_voltage(
 		struct omap_volt_data *vdata)
