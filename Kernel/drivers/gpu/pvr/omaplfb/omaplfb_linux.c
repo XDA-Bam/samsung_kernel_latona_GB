@@ -183,11 +183,6 @@ static void OMAPLFBFlipNoLock(OMAPLFB_SWAPCHAIN *psSwapChain,
 
 	fb_offset = aPhyAddr - psDevInfo->sSystemBuffer.sSysAddr.uiAddr;
 
-	/* save offset within buffer, so it always points to latest frame.
-	 * This allows omapfb code to properly handle current buffer
-	 */
-	framebuffer->var.yoffset = fb_offset / framebuffer->fix.line_length;
-
 	for(i = 0; i < ofbi->num_overlays ; i++)
 	{
 		struct omap_dss_device *display = NULL;
