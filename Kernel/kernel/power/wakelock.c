@@ -24,6 +24,10 @@
 #endif
 #include "power.h"
 
+#ifdef CONFIG_SVNET_WHITELIST
+#include <linux/phone_svn/portlist.h>
+#endif /* CONFIG_SVNET_WHITELIST */
+
 enum {
 	DEBUG_EXIT_SUSPEND = 1U << 0,
 	DEBUG_WAKEUP = 1U << 1,
@@ -262,6 +266,10 @@ long has_wake_lock(int type)
 	return ret;
 }
 
+#ifdef CONFIG_SVNET_WHITELIST
+/* to use samsung bootmode */
+extern sec_bootmode;
+#endif /* CONFIG_SVNET_WHITELIST */
 static void suspend(struct work_struct *work)
 {
 	int ret;
@@ -272,6 +280,24 @@ static void suspend(struct work_struct *work)
 			pr_info("suspend: abort suspend\n");
 		return;
 	}
+
+#ifdef CONFIG_SVNET_WHITELIST
+	if (likely(sec_bootmode != 5)) {
+		/* unless charging mode */
+		// call process white list
+		ret = process_whilte_list();
+		if (unlikely(ret !=0)) {
+			printk("fail to send whitelist\n");
+			return;
+		} else {
+			if (has_wake_lock(WAKE_LOCK_SUSPEND)) {
+				if (debug_mask & DEBUG_SUSPEND)
+					pr_info("suspend: abort suspend after processing white list\n");
+				return;
+			}
+		} 
+	}
+#endif /* CONFIG_SVNET_WHITELIST */
 
 	entry_event_num = current_event_num;
 	sys_sync();
