@@ -48,6 +48,7 @@ on fs
     mount ext4 /dev/block/stl9 /system wait
     mount rfs /dev/block/stl9 /system check=no
     mount vfat /dev/block/mmcblk1p1 /sdcard
+    mount vfat /dev/block/mmcblk0p1 /emmc
 
 # SEC_DMCRYPT for MC_CRYPT_ROOT before apply_disk_policy or apply_sec_devenc_init
     #chown system system /efs

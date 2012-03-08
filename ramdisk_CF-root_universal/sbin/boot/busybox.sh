@@ -9,11 +9,11 @@
 
 # if symlinked busybox in /system/bin or /system/xbin, remove them
 LINK=$(/sbin/ext/busybox find /system/bin/busybox -type l);
-if /sbin/ext/busybox [ $LINK = "/system/bin/busybox" ]; then
+if /sbin/ext/busybox [ "$LINK" == "/system/bin/busybox" ]; then
   /sbin/ext/busybox rm -rf /system/bin/busybox;
 fi;
-LINK=$(/sbin/ext/busybox find /system/xbin/busybox -type l);
-if /sbin/ext/busybox [ $LINK = "/system/xbin/busybox" ]; then
+LINK2=$(/sbin/ext/busybox find /system/xbin/busybox -type l);
+if /sbin/ext/busybox [ "$LINK2" == "/system/xbin/busybox" ]; then
   /sbin/ext/busybox rm -rf /system/xbin/busybox;
 fi;
 
@@ -25,6 +25,11 @@ fi;
 
 # place wrapper script
 /sbin/ext/busybox cp /sbin/ext/busybox-wrapper /sbin/busybox;
+
+# patch if busybox not found in /system/xbin
+if /sbin/ext/busybox [ ! -f /system/xbin/busybox ]; then
+  /sbin/ext/busybox sh /sbin/boot/bbsymlinks.sh
+fi;
 
 # mount system and rootfs r/o
 /sbin/ext/busybox mount -t rootfs -o remount,ro rootfs;

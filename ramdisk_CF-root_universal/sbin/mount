@@ -15,10 +15,11 @@ then
         busybox mount -t rfs -o rw,noatime,nodiratime,check=no$REMOUNT /dev/block/stl9 /system >> /dev/null 2>&1
         busybox mount -t ext4 -o rw,noatime,nodiratime,noauto_da_alloc,barrier=1$REMOUNT /dev/block/stl9 /system >> /dev/null 2>&1
         echo busybox mount -t XXX -o rw$REMOUNT /dev/block/stl9 /system >> /dev/null
-    elif (echo "$*" | grep -q -i "/datadata") || (echo "$*" | grep -q -i "/dbdata"); then
+    elif (echo "$*" | grep -q -i "/datadata"); then
         busybox mount -t rfs -o rw,noatime,nodiratime,check=no$REMOUNT /dev/block/stl10 /datadata >> /dev/null 2>&1
         busybox mount -t ext4 -o rw,noatime,nodiratime,noauto_da_alloc,barrier=0,nodelalloc$REMOUNT /dev/block/stl10 /datadata >> /dev/null 2>&1
         echo busybox mount -t XXX -o rw$REMOUNT /dev/block/stl10 /datadata >> /dev/null
+    elif (echo "$*" | grep -q -i "/dbdata"); then
         busybox mount -t rfs -o rw,noatime,nodiratime,check=no$REMOUNT /dev/block/stl10 /dbdata >> /dev/null 2>&1
         busybox mount -t ext4 -o rw,noatime,nodiratime,noauto_da_alloc,barrier=0,nodelalloc$REMOUNT /dev/block/stl10 /dbdata >> /dev/null 2>&1
         echo busybox mount -t XXX -o rw$REMOUNT /dev/block/stl10 /dbdata >> /dev/null

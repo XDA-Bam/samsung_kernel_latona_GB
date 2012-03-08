@@ -14,13 +14,13 @@ TWEAK_GOVERNOR_CONSERVATIVE="$TWEAK_BASE.gov_conservative";	# EXT4 Speed
 TWEAK_SCHEDULER_DEADLINE="$TWEAK_BASE.sched_deadline";		# I/O: Deadline sched.
 TWEAK_TOUCHSCREEN="$TWEAK_BASE.touchscreen";			# Optimize SQLite databases
 
-for i in $TWEAK_IO $TWEAK_NOATIME $TWEAK_VM_SWAPPINESS $TWEAK_VM_DIRTY $TWEAK_SCHEDULER $TWEAK_MINFREE $TWEAK_SDCARD $TWEAK_GOVERNOR_CONSERVATIVE; do
+for i in $TWEAK_IO $TWEAK_MINFREE $TWEAK_SDCARD $TWEAK_GOVERNOR_CONSERVATIVE; do
   if [ "$(getprop $i)" = "" ]; then
     setprop $i enabled;
   fi;
 done;
 
-for i in $TWEAK_STAGEFRIGHT $TWEAK_SCHEDULER_DEADLINE $TWEAK_TOUCHSCREEN; do
+for i in $TWEAK_NOATIME $TWEAK_SCHEDULER $TWEAK_VM_SWAPPINESS $TWEAK_VM_DIRTY $TWEAK_STAGEFRIGHT $TWEAK_SCHEDULER_DEADLINE $TWEAK_TOUCHSCREEN; do
   if [ "$(getprop $i)" = "" ]; then
     setprop $i disabled;
   fi;
@@ -28,7 +28,7 @@ done;
 
 if [ $(getprop $TWEAK_IO) = "enabled" ]; then
   # Tweak cfq io scheduler
-  for i in $(ls -1 /sys/block/stl*) $(ls -1 /sys/block/mmc*)
+  for i in $(ls -d /sys/block/stl*) $(ls -d /sys/block/mmc*)
   do 
     echo "0" > $i/queue/rotational
     echo "1" > $i/queue/iosched/low_latency
@@ -42,14 +42,13 @@ fi;
 
 if [ $(getprop $TWEAK_SCHEDULER_DEADLINE) = "enabled" ]; then
   # use deadline scheduler
-  for i in $(ls -1 /sys/block/stl*) $(ls -1 /sys/block/mmc*)
+  for i in $(ls -d /sys/block/stl*) $(ls -d /sys/block/mmc*)
   do 
     echo "deadline" > $i/queue/scheduler
     echo "8" > $i/queue/iosched/fifo_batch
     echo "16" > $i/queue/iosched/quantum
     echo "400" > $i/queue/iosched/read_expire
     echo "4" > $i/queue/iosched/writes_starved
-
   done
 fi;
 
@@ -156,7 +155,7 @@ if [ $(getprop $TWEAK_GOVERNOR_CONSERVATIVE) = "enabled" ]; then
 			busybox mount -o remount,nobh,noatime,commit=20,noauto_da_alloc,barrier=1 $k;
 		elif [ "$k" == "/data" ]; then
 			busybox mount -o remount,nobh,noatime,commit=20,noauto_da_alloc,barrier=1 $k;
-		elif [ "$k" == "/dbdata" || "$k" == "/datadata" ]; then
+		elif [ "$k" == "/dbdata" -o "$k" == "/datadata" ]; then
 			busybox mount -o remount,nobh,noatime,commit=20,noauto_da_alloc,barrier=0,nodelalloc $k;
 		elif [ "$k" == "/cache" ]; then
 			busybox mount -o remount,nobh,noatime,commit=20,noauto_da_alloc,barrier=1 $k;
@@ -164,6 +163,8 @@ if [ $(getprop $TWEAK_GOVERNOR_CONSERVATIVE) = "enabled" ]; then
 			busybox mount -o remount,nobh,noatime,commit=20,noauto_da_alloc,barrier=1 $k;
 		fi;
 	done
+fi;
+
 if [ $(getprop $TWEAK_TOUCHSCREEN) = "enabled" ]; then
   for i in `find /data -iname "*.db"` ; do 
     sqlite3 $i 'VACUUM;'

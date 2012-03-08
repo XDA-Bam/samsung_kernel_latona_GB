@@ -32,5 +32,6 @@ then
   recovery-samsung
 else
   echo 1 > /sbin/recovery-is-running
+  /sbin/ext/busybox sh /sbin/boot/bbsymlinks.sh
   recovery
 fi;

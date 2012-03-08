@@ -76,10 +76,10 @@ on fs
     mount ext4 /dev/block/stl10 /data nosuid nodev noatime
 
 # mount param partition
-    insmod /lib/modules/2.6.32.9/kernel/samsung/j4fs/j4fs.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/j4fs/j4fs.ko
     mkdir /mnt/.lfs 0755 root root
     mount j4fs /dev/block/stl6 /mnt/.lfs
-    insmod /lib/modules/2.6.32.9/kernel/samsung/param/param.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/param/param.ko
 
 #==============================================================================
 # Trigger : post-fs

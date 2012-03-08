@@ -33,15 +33,18 @@ sysclktz 0
 loglevel 4
 
 # setup the global environment
-    export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
+    export PATH /sbin:/vendor/bin:/system/sbin:/system/xbin:/system/bin
     export LD_LIBRARY_PATH /lib:/vendor/lib:/system/lib
     export ANDROID_BOOTLOGO 0
     export ANDROID_ROOT /system
     export ANDROID_ASSETS /system/app
     export ANDROID_DATA /data
-    export EXTERNAL_STORAGE /sdcard
+    
+    export EXTERNAL_STORAGE /mnt/sdcard
+    export EXTERNAL_STORAGE2 /mnt/sdcard/external_sd
 
 # Backward compatibility
+    symlink /mnt/sdcard /sdcard
     symlink /system/etc /etc
 
 # create mountpoints and mount tmpfs on sqlite_stmt_journals
