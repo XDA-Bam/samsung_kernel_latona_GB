@@ -8,6 +8,7 @@ $TOOLBOX cat /system/bin/app_process > /data/cf-root/backup/app_process
 $TOOLBOX cat /system/bin/system_server > /data/cf-root/backup/system_server
 $TOOLBOX cat /system/lib/libsqlite.so > /data/cf-root/backup/libsqlite.so
 $TOOLBOX cat /system/lib/libsqlite_jni.so > /data/cf-root/backup/libsqlite_jni.so
+$TOOLBOX cat /system/lib/egl/egl.cfg > /data/cf-root/backup/egl.cfg
 #$TOOLBOX cat /system/lib/egl/libGLES_android.so > /data/cf-root/backup/libGLES_android.so
 
 # Applying Fugumod
