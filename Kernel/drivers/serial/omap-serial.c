@@ -1497,6 +1497,7 @@ static int serial_omap_probe(struct platform_device *pdev)
 		up->uart_dma.tx_threshold = omap_up_info->omap4_tx_threshold;
 		up->uart_dma.rx_buf_size = omap_up_info->dma_rx_buf_size;
 		up->uart_dma.rx_poll_rate = omap_up_info->dma_rx_poll_rate;
+		up->uart_dma.rx_timeout = omap_up_info->dma_rx_timeout;
 		spin_lock_init(&(up->uart_dma.tx_lock));
 		spin_lock_init(&(up->uart_dma.rx_lock));
 		up->uart_dma.tx_dma_channel = OMAP_UART_DMA_CH_FREE;
