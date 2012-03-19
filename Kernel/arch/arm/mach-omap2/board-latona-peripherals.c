@@ -38,6 +38,7 @@
 #include <linux/mmc/host.h>
 #include <linux/leds.h>
 #include "twl4030.h"
+#include <linux/wakelock.h>
 
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
@@ -88,6 +89,7 @@ struct s5ka3dfx_platform_data omap_board_s5ka3dfx_platform_data;
 #include <mach/sec_param.h>
 
 #define OMAP_GPIO_TSP_INT 142
+#define BLUETOOTH_UART	UART2
 
 static struct gpio_switch_platform_data headset_switch_data = {
 	.name = "h2w",
@@ -1069,6 +1071,16 @@ static struct omap_musb_board_data musb_board_data = {
 	.power			= 100,
 };
 
+static void plat_hold_wakelock(void *up, int flag)
+{
+	struct uart_omap_port *up2 = (struct uart_omap_port *)up;
+
+	/* Specific wakelock for bluetooth usecases */
+	if ((up2->pdev->id == BLUETOOTH_UART)
+			&& ((flag == WAKELK_TX) || (flag == WAKELK_RX)))
+		wake_lock_timeout(&uart_lock, 2*HZ);
+}
+
 static struct omap_uart_port_info omap_serial_platform_data[] = {
 	 {
                 .use_dma        = 0,
@@ -1077,6 +1089,7 @@ static struct omap_uart_port_info omap_serial_platform_data[] = {
                 .dma_rx_timeout = DEFAULT_RXDMA_TIMEOUT,
                 .idle_timeout   = DEFAULT_IDLE_TIMEOUT,
                 .flags          = 1,
+		.plat_hold_wakelock = NULL,
         },
         {
                 .use_dma        = 0,
@@ -1085,6 +1098,7 @@ static struct omap_uart_port_info omap_serial_platform_data[] = {
                 .dma_rx_timeout = DEFAULT_RXDMA_TIMEOUT,
                 .idle_timeout   = DEFAULT_IDLE_TIMEOUT,
                 .flags          = 1,
+		.plat_hold_wakelock = plat_hold_wakelock,
         },
         {
                 .use_dma        = 0,
@@ -1093,6 +1107,7 @@ static struct omap_uart_port_info omap_serial_platform_data[] = {
                 .dma_rx_timeout = DEFAULT_RXDMA_TIMEOUT,
                .idle_timeout   = DEFAULT_IDLE_TIMEOUT,
                 .flags          = 1,
+		.plat_hold_wakelock = NULL,
         },
         {
                 .use_dma        = 0,
@@ -1101,6 +1116,7 @@ static struct omap_uart_port_info omap_serial_platform_data[] = {
                 .dma_rx_timeout = DEFAULT_RXDMA_TIMEOUT,
                 .idle_timeout   = DEFAULT_IDLE_TIMEOUT,
                 .flags          = 1,
+		.plat_hold_wakelock = NULL,
         },
         {
                 .flags          = 0
@@ -1118,6 +1134,7 @@ static void enable_board_wakeup_source(void)
 void __init omap_board_peripherals_init(void)
 {
 	printk("*******board_peripherals_init*****\n");
+	wake_lock_init(&uart_lock, WAKE_LOCK_SUSPEND, "uart_wake_lock");
 	twl4030_get_scripts(&latona_t2scripts_data);
 
 	omap_i2c_init();
