@@ -91,6 +91,8 @@ struct s5ka3dfx_platform_data omap_board_s5ka3dfx_platform_data;
 #define OMAP_GPIO_TSP_INT 142
 #define BLUETOOTH_UART	UART2
 
+static struct wake_lock uart_lock;
+
 static struct gpio_switch_platform_data headset_switch_data = {
 	.name = "h2w",
 	.gpio = OMAP_GPIO_DET_3_5,	/* Omap3430 GPIO_27 For samsung zeus */
