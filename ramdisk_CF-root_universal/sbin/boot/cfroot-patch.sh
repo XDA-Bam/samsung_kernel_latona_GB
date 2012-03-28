@@ -80,6 +80,3 @@ $TOOLBOX chmod 755 /system/etc/init.d/00tweaks
 
 # Bootanimation patch for Samsung ROMs
 /sbin/ext/busybox sh /sbin/boot/bootanim-patch.sh
-
-# Fix for fix_permissions script on Samsung stock ROMs, credits to loSconosciuto @ XDA
-ln -s /dbdata/system/packages.xml /data/system/packages.xml
