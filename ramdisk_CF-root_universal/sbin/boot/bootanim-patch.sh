@@ -1,6 +1,8 @@
 # Custom Bootanimation
 /sbin/ext/busybox cp /sbin/bootanimation /system/bin/bootanimation
 /sbin/ext/busybox chmod 755 /system/bin/bootanimation
+/sbin/ext/busybox cp /sbin/bootanimation.sh /system/bin/bootanimation.sh
+/sbin/ext/busybox chmod 755 /system/bin/bootanimation.sh
 /sbin/ext/busybox rm /system/bin/samsungani
 /sbin/ext/busybox ln -s /system/bin/bootanimation /system/bin/samsungani
 
