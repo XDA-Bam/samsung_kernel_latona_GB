@@ -1,60 +1,62 @@
-if /sbin/ext/busybox [ ! -f /system/cfroot/release-100-I9003XXKPQ- ]; 
+TOOLBOX=/sbin/ext/busybox
+CURRENT_VERSION=$($TOOLBOX cat /proc/version | $TOOLBOX grep "XDA_BAM" | $TOOLBOX grep -Eo "#[0-9]+" | $TOOLBOX tr -d "#")
+
+if $TOOLBOX [ ! -f /system/cfroot/release-BCK-I9003 ] || [ "$($TOOLBOX cat /system/cfroot/release-BCK-I9003)" != $CURRENT_VERSION ];
 then
 # Remount system RW
-    /sbin/ext/busybox mount -o remount,rw /system
-    /sbin/ext/busybox mount -t rootfs -o remount,rw rootfs
+    $TOOLBOX mount -o remount,rw /system
+    $TOOLBOX mount -t rootfs -o remount,rw rootfs
 
 # Free some space from /system as it fully packed in stock odexed roms
-    if /sbin/ext/busybox [ -f /system/app/InfoAlarm.apk ]; then
-        /sbin/ext/busybox cp /system/app/InfoAlarm.* /tmp/
-        toolbox rm /system/app/InfoAlarm.*
+    if $TOOLBOX [ -f /system/app/InfoAlarm.apk ]; then
+        $TOOLBOX cp /system/app/InfoAlarm.* /tmp/
+        $TOOLBOX rm /system/app/InfoAlarm.*
     fi;
 
 # ensure /system/xbin exists
-    toolbox mkdir /system/xbin
-    toolbox chmod 755 /system/xbin
+    $TOOLBOX mkdir /system/xbin
+    $TOOLBOX chmod 755 /system/xbin
 
 # Custom patches for SGSL
-    /sbin/ext/busybox sh /sbin/boot/cfroot-patch.sh
+    $TOOLBOX sh /sbin/boot/cfroot-patch.sh
 
 # su
-    toolbox rm /system/bin/su
-    toolbox rm /system/xbin/su
-    toolbox cat /res/misc/su > /system/xbin/su
-    toolbox chown 0.0 /system/xbin/su
-    toolbox chmod 6755 /system/xbin/su
+    $TOOLBOX rm /system/bin/su
+    $TOOLBOX rm /system/xbin/su
+    $TOOLBOX cat /res/misc/su > /system/xbin/su
+    $TOOLBOX chown 0.0 /system/xbin/su
+    $TOOLBOX chmod 6755 /system/xbin/su
 
 # Superuser
-    toolbox rm /system/app/Superuser.apk
-    toolbox rm /data/app/Superuser.apk
-    toolbox cat /res/misc/Superuser.apk > /system/app/Superuser.apk
-    toolbox chown 0.0 /system/app/Superuser.apk
-    toolbox chmod 644 /system/app/Superuser.apk
+    $TOOLBOX rm /system/app/Superuser.apk
+    $TOOLBOX rm /data/app/Superuser.apk
+    $TOOLBOX cat /res/misc/Superuser.apk > /system/app/Superuser.apk
+    $TOOLBOX chown 0.0 /system/app/Superuser.apk
+    $TOOLBOX chmod 644 /system/app/Superuser.apk
 
 # CWM Manager
-    toolbox rm /system/app/CWMManager.apk
-    toolbox rm /data/dalvik-cache/*CWMManager.apk*
-    toolbox rm /data/app/eu.chainfire.cfroot.cwmmanager*.apk
+    $TOOLBOX rm /system/app/CWMManager.apk
+    $TOOLBOX rm /data/dalvik-cache/*CWMManager.apk*
+    $TOOLBOX rm /data/app/eu.chainfire.cfroot.cwmmanager*.apk
 
-    toolbox cat /res/misc/CWMManager.apk > /system/app/CWMManager.apk
-    toolbox chown 0.0 /system/app/CWMManager.apk
-    toolbox chmod 644 /system/app/CWMManager.apk
+    $TOOLBOX cat /res/misc/CWMManager.apk > /system/app/CWMManager.apk
+    $TOOLBOX chown 0.0 /system/app/CWMManager.apk
+    $TOOLBOX chmod 644 /system/app/CWMManager.apk
 
 # Restore Apps if possible
-    /sbin/ext/busybox cp /tmp/InfoAlarm.* /system/app/
-    toolbox chown 0.0 /system/app/InfoAlarm.*
-    toolbox chmod 644 /system/app/InfoAlarm.*
-    toolbox rm /tmp/InfoAlarm.*
+    $TOOLBOX cp /tmp/InfoAlarm.* /system/app/
+    $TOOLBOX chown 0.0 /system/app/InfoAlarm.*
+    $TOOLBOX chmod 644 /system/app/InfoAlarm.*
+    $TOOLBOX rm /tmp/InfoAlarm.*
 
 # Once be enough
-    toolbox mkdir /system/cfroot
-    toolbox chmod 755 /system/cfroot
-    toolbox rm /data/cfroot/*
-    toolbox rmdir /data/cfroot
-    toolbox rm /system/cfroot/*
-    echo 1 > /system/cfroot/release-100-I9003XXKPQ-
+    $TOOLBOX mkdir /system/cfroot
+    $TOOLBOX chmod 755 /system/cfroot
+    $TOOLBOX rm /data/cfroot/*
+    $TOOLBOX rmdir /data/cfroot
+    $TOOLBOX echo $CURRENT_VERSION > /system/cfroot/release-BCK-I9003
 
 # Remount system RO
-    /sbin/ext/busybox mount -t rootfs -o remount,ro rootfs
-    /sbin/ext/busybox mount -o remount,ro /system
+    $TOOLBOX mount -t rootfs -o remount,ro rootfs
+    $TOOLBOX mount -o remount,ro /system
 fi;
