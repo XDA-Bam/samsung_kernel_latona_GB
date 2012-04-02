@@ -25,7 +25,10 @@ on init
 
     mkdir /mnt 0775 root root
 
-    #mount /tmp /tmp tmpfs   
+    #mount /tmp /tmp tmpfs
+ 
+    #fix_permissions patch
+    symlink /datadata /dbdata
 
 on early-fs
 

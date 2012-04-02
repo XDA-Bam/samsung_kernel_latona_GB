@@ -9,6 +9,9 @@
 #/system/bin/logwrapper /sbin/ext/busybox sh /sbin/boot/tweaks.sh
 /system/bin/logwrapper /sbin/ext/busybox sh /sbin/boot/scripts.sh
 
+#fix_permissions patch
+/system/bin/logwrapper /sbin/ext/busybox sh /sbin/boot/fix_permissions-patch.sh
+
 read sync < /data/sync_fifo
 rm /data/sync_fifo
 setprop cm.filesystem.ready 1
