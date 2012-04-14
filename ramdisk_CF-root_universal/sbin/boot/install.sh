@@ -1,7 +1,7 @@
 TOOLBOX=/sbin/ext/busybox
-CURRENT_VERSION=$($TOOLBOX cat /proc/version | $TOOLBOX grep "XDA_BAM" | $TOOLBOX grep -Eo "#[0-9]+" | $TOOLBOX tr -d "#")
+CURRENT_VERSION=$($TOOLBOX cat /proc/version | $TOOLBOX cut -d"#" -f2)
 
-if $TOOLBOX [ ! -f /system/cfroot/release-BCK-I9003 ] || [ "$($TOOLBOX cat /system/cfroot/release-BCK-I9003)" != $CURRENT_VERSION ];
+if $TOOLBOX [ ! -f /system/cfroot/release-BCK-I9003 ] || [ "$($TOOLBOX cat /system/cfroot/release-BCK-I9003)" != "$CURRENT_VERSION" ];
 then
 # Remount system RW
     $TOOLBOX mount -o remount,rw /system

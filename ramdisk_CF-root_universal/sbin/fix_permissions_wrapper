@@ -1,4 +1,4 @@
-#! /system/bin/sh
+#!/sbin/ext/busybox sh
 
 # Programs needed
 ECHO="busybox echo"
