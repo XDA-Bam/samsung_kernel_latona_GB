@@ -351,14 +351,6 @@ config VIDEO_CAM_ISX006
 	  ISX006 camera.  It is to work with the TI OMAP3
           camera controller.
 
-config VIDEO_CAM_S5K5CCGX
-	tristate "CAM S5K5CCGX"
-	depends on I2C && VIDEO_V4L2
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the
-	  S5K5CCGX camera.  It is to work with the TI OMAP3 
-          camera controller.
-
 config VIDEO_CAM_CE147
 	tristate "CAM CE147"
 	depends on I2C && VIDEO_V4L2
@@ -374,15 +366,6 @@ config VIDEO_CAM_S5KA3DFX
 	  This is a Video4Linux2 sensor-level driver for the
 	  S5KA3DFX camera.  It is to work with the TI OMAP3
           camera controller.
-
-config VIDEO_CAM_S5K6AAFX
-	tristate "CAM S5K6AAFX"
-	depends on I2C && VIDEO_V4L2
-	---help---
-	  This is a Video4Linux2 sensor-level driver for the
-	  S5K6AAFX camera.  It is to work with the TI OMAP3
-          camera controller.
-
 config VIDEO_IMX046
 	tristate "Sony IMX046 sensor driver (8MP)"
 	depends on I2C && VIDEO_V4L2
@@ -696,7 +679,7 @@ config VIDEO_ISIF
 
 source "drivers/media/video/omap/Kconfig"
 
-#source "drivers/media/video/omapgfx/Kconfig"
+source "drivers/media/video/omapgfx/Kconfig"
 
 source "drivers/media/video/bt8xx/Kconfig"
 

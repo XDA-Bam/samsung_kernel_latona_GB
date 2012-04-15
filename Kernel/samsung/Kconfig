@@ -26,9 +26,7 @@
 menu "Samsung Private Third-Party Device Drviers"
 
 menu "RFS_3.0.0_b040-LinuStoreIII_1.2.0_b038-FSR_1.2.1p1_b139_RC"
-#source "samsung/rfs_fsr/drivers/fsr/Kconfig"
 source "samsung/rfs_fsr/drivers/tfsr/Kconfig"
-#source "samsung/rfs_fsr/fs/rfs/Kconfig"
 endmenu
 
 menu "Immersion touch sense driver(vibetonz)"
@@ -71,16 +69,16 @@ menu "GPS Support"
 source "samsung/gps/Kconfig"
 endmenu
 
-menu "ROHM Light Sensor Support"
-source "samsung/bh1721/Kconfig"
-endmenu
+#menu "ROHM Light Sensor Support"
+#source "samsung/bh1721/Kconfig"
+#endmenu
 
-menu "ST K3G Gyroscope Sensor Support"
-source "samsung/k3g/Kconfig"
-endmenu
+#menu "ST K3G Gyroscope Sensor Support"
+#source "samsung/k3g/Kconfig"
+#endmenu
 
-menu "Bosch BMA023 Accelerometer Support"
-source "samsung/bma023/Kconfig"
-endmenu
+#menu "Bosch BMA023 Accelerometer Support"
+#source "samsung/bma023/Kconfig"
+#endmenu
 
 endmenu

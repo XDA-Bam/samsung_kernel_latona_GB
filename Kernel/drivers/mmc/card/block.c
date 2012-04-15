@@ -35,7 +35,6 @@
 #include <linux/mmc/card.h>
 #include <linux/mmc/host.h>
 #include <linux/mmc/mmc.h>
-#include <linux/mmc/mmc_ioctl.h>
 #include <linux/mmc/sd.h>
 #ifdef CONFIG_MMC_DISCARD_MERGE
 #include <linux/mmc/discard.h>

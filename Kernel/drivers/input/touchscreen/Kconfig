@@ -626,17 +626,6 @@ config TOUCHSCREEN_SYNTM12XX
         bool "Dynamic  Atmel AT42QT602240 settings for charger state"
         depends on TOUCHSCREEN_AT42QT602240
 
- config TOUCHSCREEN_QT602240
-        tristate "Atmel QT602240 for P1WIFI"
-        depends on I2C
-        help
-          Say Y here if you have a Atmel QT602240 for P1WIFI.
-
-          If unsure, say N.
-
-          To compile this driver as a module, choose M here: the
-          module will be called atmel_touch_602240.
-	  
 config TOUCHSCREEN_TPS6507X
 	tristate "TPS6507x based touchscreens"
 	depends on I2C

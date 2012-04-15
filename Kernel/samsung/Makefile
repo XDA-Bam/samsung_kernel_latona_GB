@@ -23,9 +23,7 @@
 # Version : Baby-Raccoon
 ##
 
-#obj-$(CONFIG_RFS_FSR)		+= rfs_fsr/drivers/fsr/
 obj-$(CONFIG_TINY_FSR)		+= rfs_fsr/drivers/tfsr/
-#obj-$(CONFIG_RFS_FS)		+= rfs_fsr/fs/rfs/
 obj-$(CONFIG_SAMSUNG_BATTERY)	+= battery/
 obj-$(CONFIG_FMRADIO)	+= fm_si4709/
 obj-$(CONFIG_SAMSUNG_VIBETONZ)	+= vibetonz/
@@ -36,7 +34,4 @@ obj-$(CONFIG_INPUT_BMA222)	+= bma222/
 obj-$(CONFIG_INPUT_GP2A)	+= gp2a/
 obj-$(CONFIG_INPUT_ORIENTATION) += orientation/
 obj-$(CONFIG_SUPPORT_GPS)	+= gps/
-obj-$(CONFIG_INPUT_BH1721)	+= bh1721/
-obj-$(CONFIG_INPUT_K3G)     += k3g/
-obj-$(CONFIG_INPUT_BMA023)  += bma023/
 

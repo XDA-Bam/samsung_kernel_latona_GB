@@ -2907,13 +2907,7 @@ int dispc_scaling_decision(u16 width, u16 height,
 				u16 min_y_decim, u16 max_y_decim,
 				u16 *x_decim, u16 *y_decim, bool *three_tap)
 {
-#ifdef CONFIG_MACH_SAMSUNG_P1WIFI
-//Change for OMAPS00250361
-	int maxdownscale = cpu_is_omap24xx() ? 2 : 2;
-//Change for OMAPS00250361
-#else
 	int maxdownscale = cpu_is_omap24xx() ? 2 : 4;
-#endif
 	int bpp = color_mode_to_bpp(color_mode);
 
 	/*
@@ -3104,11 +3098,7 @@ static int _dispc_setup_plane(enum omap_plane plane,
 #ifdef CONFIG_ARCH_OMAP4
 	int maxdownscale = 4;
 #else
-#ifdef CONFIG_MACH_SAMSUNG_P1WIFI
-	int maxdownscale = cpu_is_omap34xx() ? 2 : 2;
-#else
 	int maxdownscale = cpu_is_omap34xx() ? 4 : 2;
-#endif
 #endif
 	bool fieldmode = 0;
 	int cconv = 0;

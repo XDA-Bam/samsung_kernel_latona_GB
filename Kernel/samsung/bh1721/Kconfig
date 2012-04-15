@@ -1,5 +1,0 @@
-
-config INPUT_BH1721
-	tristate "ROHM Bh1721 Light Sensor"
-	depends on I2C
-	default n
