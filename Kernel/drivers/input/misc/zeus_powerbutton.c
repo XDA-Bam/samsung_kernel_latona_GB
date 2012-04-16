@@ -23,6 +23,9 @@
 
 #include <linux/i2c/twl.h>
 
+// For calculation of home key delay
+#include <linux/time.h>
+
 #if defined(CONFIG_INPUT_GPIO_VOLUME_KEY) && defined(CONFIG_SAMSUNG_KERNEL_DEBUG_USER)
 #define POWER_KEY_FLAG (1<<0)
 #define VOLDN_KEY_FLAG (1<<1)
@@ -50,6 +53,8 @@ static irqreturn_t powerkey_press_handler(int irq_num, void * dev);
 #ifdef CONFIG_INPUT_HARD_RESET_KEY
 static irqreturn_t homekey_press_handler(int irq_num, void * dev);
 int home_key_press_status = 0;
+int last_home_key_press_status = 0;
+static struct timespec home_key_up_time = {0, 0};
 #endif
 #ifdef CONFIG_INPUT_GPIO_VOLUME_KEY
 static irqreturn_t volume_down_key_press_handler(int irq_num, void * dev);
@@ -68,6 +73,20 @@ void lcd_work_func(struct work_struct *work)
 //	twl_i2c_write_u8(TWL4030_MODULE_PM_RECEIVER, 0x00, 0x23);
 	twl_i2c_write_u8(TWL4030_MODULE_PM_RECEIVER, 0x9, 0x26);
 	twl_i2c_write_u8(TWL4030_MODULE_PM_RECEIVER, 0xe0, 0x23);
+}
+
+// For calculation of home key delay
+static inline u_int64_t ts_sub_to_ms(struct timespec dest, struct timespec src) {
+	u_int64_t result;
+	
+	if (src.tv_sec > dest.tv_sec)
+		return 0;
+	if (src.tv_sec == dest.tv_sec && src.tv_nsec >= dest.tv_nsec)
+		return 0;
+	
+	result = (dest.tv_sec - src.tv_sec) * MSEC_PER_SEC;
+	result += (dest.tv_nsec - src.tv_nsec) / NSEC_PER_MSEC;
+	return result;
 }
 
 ssize_t gpiokey_pressed_show(struct device *dev, struct device_attribute *attr, char *buf)
@@ -139,8 +158,32 @@ static irqreturn_t homekey_press_handler(int irq_num, void * dev)
     dev_err(ip_dev->dev.parent,"Failed to read GPIO value\n");
     return IRQ_HANDLED;
   }
+
+  // If the button seems to be pressed for more than 3 seconds, we assume that the filter lead to a key release being ignored and reset the status.
+  if (ts_sub_to_ms(current_kernel_time(), home_key_up_time) > 3000) {
+    last_home_key_press_status = 0;
+
+#if defined(CONFIG_SAMSUNG_KERNEL_DEBUG_USER)
+    printk("Status of last KEY_HOME event reset to zero\n");
+#endif
+  }
+
+  // A typical key press lasts ~100ms. We can't press this button again in less than 50ms. In this case, the button must still be pressed down and we have to ignore the key press event.
+  // In case the event is the same as last time, it has to be a falsely recognized event and we have to ignore it, too.
+  if (ts_sub_to_ms(current_kernel_time(), home_key_up_time) < 50 || home_key_press_status == last_home_key_press_status) {
+#if defined(CONFIG_SAMSUNG_KERNEL_DEBUG_USER)
+    printk("KEY_HOME event ignored, probably unwanted keypress\n");
+#endif
+
+    return IRQ_HANDLED;
+  }
+
+  last_home_key_press_status = home_key_press_status;
   input_report_key(ip_dev,KEY_HOME,home_key_press_status);
   input_sync(ip_dev);
+  // "Rearm" home key event timer
+  home_key_up_time = current_kernel_time();
+
 #if defined(CONFIG_SAMSUNG_KERNEL_DEBUG_USER)
   dev_dbg(ip_dev->dev.parent,"Sent KEY_HOME event = %d\n",home_key_press_status);
   printk("Sent KEY_HOME event = %d\n",home_key_press_status);
