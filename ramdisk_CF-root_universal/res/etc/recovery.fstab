@@ -6,6 +6,6 @@
 /system     rfs     /dev/block/stl9         NULL        ext4         NULL              rw,check=no
 /datadata   rfs     /dev/block/stl10        NULL        ext4         NULL              rw,check=no
 #external
-/sdcard     vfat    /dev/block/mmcblk1p1    NULL        vfat         NULL              rw,check=no
+/sdcard     vfat    /dev/block/mmcblk1p1    NULL        vfat         NULL              rw
 #internal
-/emmc       vfat    /dev/block/mmcblk0p1    NULL        vfat         NULL              rw,check=no
+/emmc       vfat    /dev/block/mmcblk0p1    NULL        vfat         NULL              rw
