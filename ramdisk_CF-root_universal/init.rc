@@ -255,7 +255,6 @@ on fs
 
 # SEC_SECURITYLAB_LATONA_DEVICE_ENCRYPTION: add crypt option
     mkdir /dbdata
-    symlink /data/dbdata /dbdata
     mount ext4 /dev/block/stl10 /dbdata nosuid nodev noatime nodiratime errors=continue nobh data=writeback barrier=0 noauto_da_alloc
     mount rfs /dev/block/stl10 /dbdata nosuid nodev crypt check=no,iocharset=utf8    
 #    mount rfs /dev/block/stl10 /dbdata nosuid nodev check=no,iocharset=utf8    
