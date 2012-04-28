@@ -53,7 +53,6 @@ then
     $TOOLBOX mkdir /system/cfroot
     $TOOLBOX chmod 755 /system/cfroot
     $TOOLBOX rm /data/cfroot/*
-    $TOOLBOX rmdir /data/cfroot
     $TOOLBOX rm /system/cfroot/*
     $TOOLBOX echo $CURRENT_VERSION > /system/cfroot/release-BCK-I9003
 

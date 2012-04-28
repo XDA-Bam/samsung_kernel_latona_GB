@@ -3,13 +3,22 @@
 TOOLBOX=/sbin/ext/busybox
 
 # Backup files
-/sbin/ext/busybox mkdir -p /data/cf-root/backup
-$TOOLBOX cat /system/bin/app_process > /data/cf-root/backup/app_process
-$TOOLBOX cat /system/bin/system_server > /data/cf-root/backup/system_server
-$TOOLBOX cat /system/lib/libsqlite.so > /data/cf-root/backup/libsqlite.so
-$TOOLBOX cat /system/lib/libsqlite_jni.so > /data/cf-root/backup/libsqlite_jni.so
-$TOOLBOX cat /system/lib/egl/egl.cfg > /data/cf-root/backup/egl.cfg
-#$TOOLBOX cat /system/lib/egl/libGLES_android.so > /data/cf-root/backup/libGLES_android.so
+$TOOLBOX mkdir -p /data/cfroot/backup
+if $TOOLBOX [ ! -f /data/cfroot/backup/app_process ]; then
+   $TOOLBOX cat /system/bin/app_process > /data/cfroot/backup/app_process
+fi;
+if $TOOLBOX [ ! -f /data/cfroot/backup/system_server ]; then
+   $TOOLBOX cat /system/bin/system_server > /data/cfroot/backup/system_server
+fi;
+if $TOOLBOX [ ! -f /data/cfroot/backup/libsqlite.so ]; then
+   $TOOLBOX cat /system/lib/libsqlite.so > /data/cfroot/backup/libsqlite.so
+fi;
+if $TOOLBOX [ ! -f /data/cfroot/backup/libsqlite_jni.so ]; then
+   $TOOLBOX cat /system/lib/libsqlite_jni.so > /data/cfroot/backup/libsqlite_jni.so
+fi;
+if $TOOLBOX [ ! -f /data/cfroot/backup/egl.cfg ]; then
+   $TOOLBOX cat /system/lib/egl/egl.cfg > /data/cfroot/backup/egl.cfg
+fi;
 
 # Applying Fugumod
 #$TOOLBOX cat /res/misc/bin/app_process > /system/bin/app_process
@@ -55,7 +64,6 @@ $TOOLBOX chown 0.0 /system/xbin/zipalign
 $TOOLBOX chmod 755 /system/xbin/zipalign
 
 #Applying Graphics Performance Tweak
-#rm /system/lib/egl/libGLES_android.so
 echo "0 1 POWERVR_SGX530_125" > /system/lib/egl/egl.cfg
 
 # Tweak Manager
