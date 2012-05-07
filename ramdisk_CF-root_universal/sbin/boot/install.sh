@@ -9,8 +9,9 @@ then
 
 # Free some space from /system as it fully packed in stock odexed roms
     if $TOOLBOX [ -f /system/app/InfoAlarm.apk ]; then
-        $TOOLBOX cp /system/app/InfoAlarm.* /tmp/
-        $TOOLBOX rm /system/app/InfoAlarm.*
+        $TOOLBOX mv /system/app/InfoAlarm.* /data/app/
+        $TOOLBOX chown 0.0 /system/app/InfoAlarm.*
+        $TOOLBOX chmod 644 /system/app/InfoAlarm.*
     fi;
 
 # ensure /system/xbin exists
@@ -42,12 +43,6 @@ then
     $TOOLBOX cat /res/misc/CWMManager.apk > /system/app/CWMManager.apk
     $TOOLBOX chown 0.0 /system/app/CWMManager.apk
     $TOOLBOX chmod 644 /system/app/CWMManager.apk
-
-# Restore Apps if possible
-    $TOOLBOX cp /tmp/InfoAlarm.* /system/app/
-    $TOOLBOX chown 0.0 /system/app/InfoAlarm.*
-    $TOOLBOX chmod 644 /system/app/InfoAlarm.*
-    $TOOLBOX rm /tmp/InfoAlarm.*
 
 # Once be enough
     $TOOLBOX mkdir /system/cfroot
