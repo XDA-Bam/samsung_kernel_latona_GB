@@ -67,13 +67,16 @@ $TOOLBOX chmod 755 /system/xbin/zipalign
 echo "0 1 POWERVR_SGX530_125" > /system/lib/egl/egl.cfg
 
 # Tweak Manager
-$TOOLBOX rm /system/app/TweakManager.apk
-$TOOLBOX rm /data/dalvik-cache/*TweakManager.apk*
-$TOOLBOX rm /data/app/eu.chainfire.cfroot.tweakmanager*.apk
+if ! $TOOLBOX cmp /system/app/TweakManager.apk /res/misc/TweakManager.apk > /dev/null; then
+   # If the app changed, we replace everything. If not, we leave everything as is to preserve the settings.
+   $TOOLBOX rm /system/app/TweakManager.apk
+   $TOOLBOX rm /data/dalvik-cache/*TweakManager.apk*
+   $TOOLBOX rm /data/app/eu.chainfire.cfroot.tweakmanager*.apk
 
-$TOOLBOX cat /res/misc/TweakManager.apk > /system/app/TweakManager.apk
-$TOOLBOX chown 0.0 /system/app/TweakManager.apk
-$TOOLBOX chmod 644 /system/app/TweakManager.apk
+   $TOOLBOX cat /res/misc/TweakManager.apk > /system/app/TweakManager.apk
+   $TOOLBOX chown 0.0 /system/app/TweakManager.apk
+   $TOOLBOX chmod 644 /system/app/TweakManager.apk
+fi
 
 # Tweaks script helper
 $TOOLBOX rm /data/property/persist.tweak.*
