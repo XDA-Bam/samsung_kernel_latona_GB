@@ -76,10 +76,10 @@ if ! $TOOLBOX cmp /system/app/TweakManager.apk /res/misc/TweakManager.apk > /dev
    $TOOLBOX cat /res/misc/TweakManager.apk > /system/app/TweakManager.apk
    $TOOLBOX chown 0.0 /system/app/TweakManager.apk
    $TOOLBOX chmod 644 /system/app/TweakManager.apk
-fi
 
-# Tweaks script helper
-$TOOLBOX rm /data/property/persist.tweak.*
+   # Tweaks script helper
+   $TOOLBOX rm /data/property/persist.tweak.*
+fi
 
 # Tweaks script
 $TOOLBOX mkdir /system/etc/init.d
