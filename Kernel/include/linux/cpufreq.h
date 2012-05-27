@@ -376,12 +376,6 @@ extern struct cpufreq_governor cpufreq_gov_hotplug;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTASS2)
 extern struct cpufreq_governor cpufreq_gov_smartass2;
 #define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_smartass2)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVEX)
-extern struct cpufreq_governor cpufreq_gov_interactivex;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_interactivex)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMANDX)
-extern struct cpufreq_governor cpufreq_gov_ondemandx;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_ondemandx)
 #endif
 
 
