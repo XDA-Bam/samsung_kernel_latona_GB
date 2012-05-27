@@ -606,8 +606,48 @@ void omap_pm_dsp_set_min_opp(u8 opp_id)
 
 	if (dsp_freq_table[dsp_req_id].frequency >
 	        dsp_freq_table[mpu_req_id].frequency) {
+		/*
+		 * Ensure that this request is not conflicting with cpufreq
+		 * constraints. If that is the case, cpufreq wins.
+		 */
+		struct cpufreq_policy policy;
+		cpufreq_get_policy(&policy, 0);
+
+		if (mpu_freq_table[dsp_req_id].frequency < policy.min) {
+			while (mpu_freq_table[dsp_req_id].frequency < policy.min && dsp_req_id < ft_count) {
+				dsp_req_id = dsp_req_id + 1;
+			}
+		} else if (mpu_freq_table[dsp_req_id].frequency > policy.max) {
+			while (mpu_freq_table[dsp_req_id].frequency > policy.max && dsp_req_id > 0) {
+				dsp_req_id = dsp_req_id - 1;
+			}
+		}
+		/*
+		 * cpufreq check end
+		 */
+
 		selopp = dsp_req_id;
 	} else {
+		/*
+		 * Ensure that this request is not conflicting with cpufreq
+		 * constraints. If that is the case, cpufreq wins.
+		 */
+		struct cpufreq_policy policy;
+		cpufreq_get_policy(&policy, 0);
+
+		if (mpu_freq_table[mpu_req_id].frequency < policy.min) {
+			while (mpu_freq_table[mpu_req_id].frequency < policy.min && mpu_req_id < ft_count) {
+				mpu_req_id = mpu_req_id + 1;
+			}
+		} else if (mpu_freq_table[mpu_req_id].frequency > policy.max) {
+			while (mpu_freq_table[mpu_req_id].frequency > policy.max && mpu_req_id > 0) {
+				mpu_req_id = mpu_req_id - 1;
+			}
+		}
+		/*
+		 * cpufreq check end
+		 */
+
 		selopp = mpu_req_id;
 	}
 
