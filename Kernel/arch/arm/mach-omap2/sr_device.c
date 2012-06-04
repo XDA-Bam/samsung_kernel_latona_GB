@@ -115,6 +115,13 @@ static void __init sr_read_efuse(struct omap_sr_dev_data *dev_data,
 		} else {
 			dev_data->volt_data[i].sr_nvalue = omap_ctrl_readl(
 				dev_data->efuse_nvalues_offs[i]);
+
+#ifdef CONFIG_SAMSUNG_KERNEL_DEBUG_USER
+			printk("%s: dom %s[%d]: using eFUSE ntarget 0x%08X\n",
+					__func__,
+					dev_data->vdd_name, i,
+					dev_data->volt_data[i].sr_nvalue);
+#endif
 		}
 	}
 	if (cpu_is_omap44xx())
