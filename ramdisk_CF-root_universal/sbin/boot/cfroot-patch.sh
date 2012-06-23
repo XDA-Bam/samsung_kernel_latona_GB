@@ -1,6 +1,7 @@
-/sbin/ext/busybox mount -o remount,rw /data
-
 TOOLBOX=/sbin/ext/busybox
+
+# Remount data RW
+$TOOLBOX mount -o remount,rw /data
 
 # Backup files
 $TOOLBOX mkdir -p /data/cfroot/backup
@@ -21,8 +22,6 @@ if $TOOLBOX [ ! -f /data/cfroot/backup/egl.cfg ]; then
 fi;
 
 # Applying Fugumod
-#$TOOLBOX cat /res/misc/bin/app_process > /system/bin/app_process
-#$TOOLBOX cat /res/misc/bin/system_server > /system/bin/system_server
 $TOOLBOX cp -f /res/misc/bin/app_process /system/bin/app_process
 $TOOLBOX cp -f /res/misc/bin/system_server /system/bin/system_server
 $TOOLBOX chown 0.2000 /system/bin/app_process
@@ -46,7 +45,7 @@ $TOOLBOX cat /res/misc/xbin/sqlite3 > /system/xbin/sqlite3
 $TOOLBOX cat /res/misc/lib/libncurses.so > /system/lib/libncurses.so
 $TOOLBOX chown 0.0 /system/xbin/sqlite3
 $TOOLBOX chown 0.0 /system/lib/libncurses.so
-$TOOLBOX chmod 6755 /system/xbin/sqlite3
+$TOOLBOX chmod 755 /system/xbin/sqlite3
 $TOOLBOX chmod 644 /system/lib/libncurses.so
 
 #Applying Patched sqlite lib
@@ -90,4 +89,7 @@ $TOOLBOX chown 0.0 /system/etc/init.d/00tweaks
 $TOOLBOX chmod 755 /system/etc/init.d/00tweaks
 
 # Bootanimation patch for Samsung ROMs
-/sbin/ext/busybox sh /sbin/boot/bootanim-patch.sh
+$TOOLBOX sh /sbin/boot/bootanim-patch.sh
+
+# Remount data RO
+$TOOLBOX mount -o remount,ro /data
