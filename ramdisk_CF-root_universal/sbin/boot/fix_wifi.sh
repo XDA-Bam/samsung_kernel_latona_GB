@@ -15,8 +15,12 @@ if [ $SDIFF != $SORIG ]; then
     $TOOLBOX rm -fr /system/cfroot/
 
 # Backup original WiFi modules
+if $TOOLBOX [ ! -f /data/cfroot/backup/tiwlan_drv.ko ]; then
     $TOOLBOX cat /system/etc/wifi/tiwlan_drv.ko > /data/cfroot/backup/tiwlan_drv.ko
+fi;
+if $TOOLBOX [ ! -f /data/cfroot/backup/tiap_drv.ko ]; then
     $TOOLBOX cat /system/etc/wifi/softap/tiap_drv.ko > /data/cfroot/backup/tiap_drv.ko
+fi;
 
 # Replace WiFi modules
     $TOOLBOX cat /res/misc/tiwlan_drv.ko > /system/etc/wifi/tiwlan_drv.ko
