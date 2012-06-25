@@ -91,5 +91,4 @@ $TOOLBOX chmod 755 /system/etc/init.d/00tweaks
 # Bootanimation patch for Samsung ROMs
 $TOOLBOX sh /sbin/boot/bootanim-patch.sh
 
-# Remount data RO
-$TOOLBOX mount -o remount,ro /data
+# Do not remount data RO. The system expects this to be RW.

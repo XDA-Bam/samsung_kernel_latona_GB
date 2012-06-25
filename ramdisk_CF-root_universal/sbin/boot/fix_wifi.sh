@@ -30,7 +30,8 @@ fi;
     $TOOLBOX chmod 644 /system/etc/wifi/tiwlan_drv.ko
     $TOOLBOX chmod 644 /system/etc/wifi/softap/tiap_drv.ko
 
-# Remount data & system RO
+# Remount system RO
     $TOOLBOX mount -o remount,ro /system
-    $TOOLBOX mount -o remount,ro /data
+
+# Do not remount data RO. The system expects this to be RW.
 fi;
