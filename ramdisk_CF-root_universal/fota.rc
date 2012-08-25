@@ -101,7 +101,7 @@ on post-fs
 
     chown system system /data
     chmod 0771 /data
-    chmod 0777 /data/fota
+    chmod 0775 /data/fota
 
 
 #==============================================================================
@@ -128,22 +128,6 @@ on boot
 service ueventd /sbin/ueventd
     critical
 
-service console /system/bin/sh
-    console
-    disabled
-    user shell
-    group log
-
-on property:ro.secure=0
-    start console
-
-# adbd is controlled by the persist.service.adb.enable system property
-service adbd /sbin/adbd
-    enabled
-
-on property:ro.secure=0
-    start adbd
-
 # Device Encryption
 service passcodemanager /system/bin/passcodemanager
     oneshot
@@ -162,6 +146,6 @@ on property:devenc.pwdui.done=1
 
     chown system system /data
     chmod 0771 /data 
-    chmod 0777 /data/fota
+    chmod 0775 /data/fota
 
     start redbend_ua

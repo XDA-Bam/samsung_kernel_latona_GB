@@ -264,14 +264,14 @@ on fs
 
     mkdir /dbdata/databases
     chown system system /dbdata/databases
-    chmod 0777 /dbdata/databases
+    chmod 0775 /dbdata/databases
 
     mkdir /dbdata/system
     chown system system /dbdata/system
     chmod 0775 /dbdata/system
-    mkdir /dbdata/db-journal
-    chown system system /dbdata/db-journal
-    chmod 0777 /dbdata/db-journal
+#    mkdir /dbdata/db-journal
+#    chown system system /dbdata/db-journal
+#    chmod 0777 /dbdata/db-journal
     #mount rfs /dev/block/stl11 /cache nosuid nodev check=no
 
 
@@ -350,15 +350,15 @@ on post-fs
     mkdir /data/wifi 0777 wifi wifi
 #    mkdir /data/misc/wifi 0771 wifi system
     mkdir /data/misc/wifi 0771 wifi wifi  
-    chmod 0777 /data/misc/wifi/
-    chmod 0777 /data/wifi/
-    mkdir /data/misc/dhcp 0777 dhcp dhcp
-    mkdir /data/misc/wifi/sockets 0777 wifi wifi
+    chmod 0771 /data/misc/wifi/
+    chmod 0771 /data/wifi/
+    mkdir /data/misc/dhcp 0771 dhcp dhcp
+    mkdir /data/misc/wifi/sockets 0771 wifi wifi
     # create softap for TI SoftAP. 2010/12/07 CHKIM   
     mkdir /data/misc/softap 0770 wifi wifi
     chmod 0664 /system/etc/wifi/wpa_supplicant.conf
     chown dhcp dhcp /data/misc/dhcp
-    mkdir /data/misc/dhcpcd 0777 dhcp dhcp
+    mkdir /data/misc/dhcpcd 0770 dhcp dhcp
     chown dhcp dhcp /data/misc/dhcpcd
     chown dhcp dhcp /data/misc/dhcp
     mkdir /data/local 0771 shell shell
@@ -373,10 +373,11 @@ on post-fs
     chown system system /data/app   
 
     # create log system
-    mkdir /data/log 1777 system system
+    mkdir /data/log 1775 system log
+    chown system log /data/log
 
-    chmod 1777 /data/log
-    chmod 1777 /data/anr
+    chmod 1775 /data/log
+    chmod 1775 /data/anr
     
     chmod 0662 /dev/log/radio
     chmod 0662 /dev/log/main
@@ -431,9 +432,6 @@ on post-fs
     mkdir /efs/.files/.dx1 0775
     mkdir /efs/.files/.dm33 0775
     mkdir /efs/.files/.mp301 0775
-    chown media system /efs/.files/.dx1
-    chown media system /efs/.files/.dm33
-    chown media system /efs/.files/.mp301
     chmod 0775 /efs/.files/.dx1
     chmod 0775 /efs/.files/.dm33
     chmod 0775 /efs/.files/.mp301
@@ -777,7 +775,7 @@ service servicemanager /system/bin/servicemanager
 
 service vold /system/bin/vold
     socket vold stream 0660 root mount
-    socket usbstorage stream 0660 root mount
+    socket usbstorage stream 0660 root moun
     ioprio be 2
     socket enc_report stream 0660 root mount
 
@@ -806,7 +804,7 @@ service DR-deamon /system/bin/drexe
     group system radio inet net_raw     
 
 service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-system-server
-    socket zygote stream 666
+    socket zygote stream 660
     onrestart write /sys/android_power/request_state wake
     onrestart write /sys/power/state on
     onrestart restart media
@@ -833,7 +831,7 @@ service dbus /system/bin/dbus-daemon --system --nofork
     user bluetooth
     group bluetooth net_bt_admin
 
-service bluetoothd /system/bin/logwrapper /system/bin/bluetoothd -n -d
+service bluetoothd /system/bin/bluetoothd -n
     socket bluetooth stream 660 bluetooth bluetooth
     socket dbus_bluetooth stream 660 bluetooth bluetooth
     # init.rc does not yet support applying capabilities, so run as root and
@@ -920,6 +918,8 @@ service gpsd /system/vendor/bin/gpsd -c /system/vendor/etc/gps.xml
 ###### Device Encryption - init_wtl_data.rc
 on property:encryption.bootmode=remount
     # stop tvout
+    stop mobex-daemon
+    stop DR-deamon
     # stop dfta
     stop media
     stop immvibed
@@ -974,15 +974,15 @@ on property:encryption.bootmode=remount
     mkdir /data/wifi 0777 wifi wifi
 #    mkdir /data/misc/wifi 0771 wifi system
     mkdir /data/misc/wifi 0771 wifi wifi  
-    chmod 0777 /data/misc/wifi/
-    chmod 0777 /data/wifi/
-    mkdir /data/misc/dhcp 0777 dhcp dhcp
-    mkdir /data/misc/wifi/sockets 0777 wifi wifi
+    chmod 0771 /data/misc/wifi/
+    chmod 0771 /data/wifi/
+    mkdir /data/misc/dhcp 0771 dhcp dhcp
+    mkdir /data/misc/wifi/sockets 0771 wifi wifi
     # create softap for TI SoftAP. 2010/12/07 CHKIM   
     mkdir /data/misc/softap 0770 wifi wifi
     chmod 0664 /system/etc/wifi/wpa_supplicant.conf
     chown dhcp dhcp /data/misc/dhcp
-    mkdir /data/misc/dhcpcd 0777 dhcp dhcp
+    mkdir /data/misc/dhcpcd 0770 dhcp dhcp
     chown dhcp dhcp /data/misc/dhcpcd
     chown dhcp dhcp /data/misc/dhcp
     mkdir /data/local 0771 shell shell
@@ -996,12 +996,6 @@ on property:encryption.bootmode=remount
     chmod 0771 /data/app
     chown system system /data/app    
     # do not add here, "on property" tag area
-    # create log system
-    mkdir /data/log 0777 system system
-    # do not add here, "on property" tag area
-    chmod 0777 /data/log
-    chmod 0777 /data/anr
-    # do not add here, "on property" tag area   
     chmod 0662 /dev/log/radio
     chmod 0662 /dev/log/main
     chmod 0662 /dev/log/event
@@ -1066,6 +1060,8 @@ on property:encryption.restartservice=restart
     start immvibed
     start media
     # start dfta
+    start DR-deamon    
+    start mobex-daemon 
 
 on property:sys.boot_completed=1
     stop samsungani
