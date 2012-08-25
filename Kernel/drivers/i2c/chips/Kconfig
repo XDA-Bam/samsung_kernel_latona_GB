@@ -61,4 +61,9 @@ config TWL4030_MADC
 	to build it as a dinamically loadable module. The module will be
 	called twl4030-madc.ko
 
+config STMPE811
+	tristate "STMPE811 Driver"
+	help
+	ADC IC Driver
+
 endmenu

@@ -45,6 +45,8 @@
 #include <net/bluetooth/bluetooth.h>
 #include <net/bluetooth/hci_core.h>
 
+int force_acl_master = 0; /* Module param */  //BT_TIK 2011.09.23 SH : QoS patch from IL
+
 /* Handle HCI Event packets */
 
 static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb)
@@ -979,7 +981,11 @@ static inline void hci_conn_request_evt(struct hci_dev *hdev, struct sk_buff *sk
 
 			bacpy(&cp.bdaddr, &ev->bdaddr);
 
-			if (lmp_rswitch_capable(hdev) && (mask & HCI_LM_MASTER))
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+//			if (lmp_rswitch_capable(hdev) && (mask & HCI_LM_MASTER))
+			if (lmp_rswitch_capable(hdev) &&
+					((mask & HCI_LM_MASTER) || force_acl_master))
+//BT_TIK 2011.09.23 SH End
 				cp.role = 0x00; /* Become master */
 			else
 				cp.role = 0x01; /* Remain slave */
@@ -1216,8 +1222,53 @@ static inline void hci_remote_version_evt(struct hci_dev *hdev, struct sk_buff *
 
 static inline void hci_qos_setup_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
 {
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+//	BT_DBG("%s", hdev->name);
+	struct hci_ev_qos_setup_complete *ev = (void *) skb->data;
+//BT_TIK 2011.09.23 SH End
 	BT_DBG("%s", hdev->name);
 }
+
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+static inline void hci_flowspec_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
+{
+	struct hci_ev_flowspec_complete *ev = (void *) skb->data;
+	struct hci_conn *conn;
+
+	BT_DBG("%s status %d", hdev->name, ev->status);
+
+	if (!ev->status) {
+		hci_dev_lock(hdev);
+
+		conn = hci_conn_hash_lookup_handle(hdev, __le16_to_cpu(ev->handle));
+		if (conn) {
+/*
+			conn->qos_info.delay_variation =
+					le32_to_cpu(ev->qos.delay_variation);
+			conn->qos_info.latency = le32_to_cpu(ev->qos.latency);
+			conn->qos_info.peak_bandwidth =
+					le32_to_cpu(ev->qos.peak_bandwidth);
+			conn->qos_info.service_type = ev->qos.service_type;
+			conn->qos_info.token_rate = le32_to_cpu(ev->qos.token_rate);
+*/
+			conn->flowspec.bucket_size =
+					le32_to_cpu(ev->flowspec.bucket_size);
+			conn->flowspec.flowdir = ev->flowspec.flowdir;
+			conn->flowspec.latency =
+					le32_to_cpu(ev->flowspec.latency);
+			conn->flowspec.peak_bandwidth = le32_to_cpu(ev->flowspec.peak_bandwidth);
+			conn->flowspec.service_type = ev->flowspec.service_type;
+			conn->flowspec.token_rate = le32_to_cpu(ev->flowspec.token_rate);
+		}
+
+		hci_dev_unlock(hdev);
+	}
+    //BT_TIK 2011.09.23 SH : Removed HCI_OP_SET_FLOW_SPEC because kernel version of
+	//                      GT-P1010 is different from one of patch from IL
+	//hci_req_complete(hdev, HCI_OP_SET_FLOW_SPEC, ev->status);
+	hci_req_complete(hdev, ev->status);
+}
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
 
 static inline void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
 {
@@ -1901,6 +1952,12 @@ void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb)
 		hci_qos_setup_complete_evt(hdev, skb);
 		break;
 
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+	case HCI_EV_FLOWSPEC_COMPLETE:
+		hci_flowspec_complete_evt(hdev, skb);
+		break;
+//BT_TIK 2011.09.23 SH End
+
 	case HCI_EV_CMD_COMPLETE:
 		hci_cmd_complete_evt(hdev, skb);
 		break;
@@ -2017,3 +2074,8 @@ void hci_si_event(struct hci_dev *hdev, int type, int dlen, void *data)
 	hci_send_to_sock(hdev, skb);
 	kfree_skb(skb);
 }
+
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+module_param(force_acl_master, int, 0644);
+MODULE_PARM_DESC(force_acl_master, "Always try to switch to master role on ACL link");
+//BT_TIK 2011.09.23 SH End

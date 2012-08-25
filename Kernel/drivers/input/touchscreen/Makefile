@@ -49,4 +49,5 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
 obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
 obj-$(CONFIG_TOUCHSCREEN_SYNTM12XX)	+= syntm12xx.o
 obj-$(CONFIG_TOUCHSCREEN_AT42QT602240)      += atmel_touch_602240.o atmel_touchscreen.o atmel_touchscreen_i2c.o
+obj-$(CONFIG_TOUCHSCREEN_QT602240)      += qt602240.o
 obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o

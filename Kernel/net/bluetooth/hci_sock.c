@@ -253,6 +253,10 @@ static int hci_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long a
 
 	case HCIINQUIRY:
 		return hci_inquiry(argp);
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+	case HCISETFLOWSPEC:
+		return hci_set_flowspec(argp);
+//BT_TIK 2011.09.23 SH End
 
 	default:
 		lock_sock(sk);

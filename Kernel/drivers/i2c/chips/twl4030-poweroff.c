@@ -113,6 +113,17 @@ extern void omap_watchdog_reset(void);
 static void board_poweroff(void)
 {
 	/* int n_usbic_state; */
+#if ( defined( CONFIG_MACH_SAMSUNG_P1WIFI ) )
+	u8 hwsts = 0;
+	u8 vbus_val = 0;
+
+	twl_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &hwsts, 0x0F /*REG_STS_HW_CONDITIONS*/);
+
+	if(hwsts & 0x80)  // STS_VBUS		0x80
+		vbus_val = 1;
+	else
+		vbus_val = 0;
+#endif
 
 	printk("\nPower off routine - Board Shutdown!! \n");
 
@@ -129,7 +140,7 @@ static void board_poweroff(void)
 #if ( defined( CONFIG_MACH_SAMSUNG_LATONA ) ) // jypark72, to avoid build error
 	if ( !gpio_get_value( OMAP_GPIO_TA_NCONNECTED ) || gpio_get_value( OMAP_GPIO_JIG_ON18 ) )
 #elif ( defined( CONFIG_MACH_SAMSUNG_P1WIFI ) )
-	if (gpio_get_value( OMAP_GPIO_JIG_ON18 ) )
+	if (vbus_val || gpio_get_value( OMAP_GPIO_JIG_ON18 ) )
 #endif
 	{
 		printk("Warmreset by TA or USB or Jtag - check 2 pins : JIG_ON18, TA_nConnected \n\n");

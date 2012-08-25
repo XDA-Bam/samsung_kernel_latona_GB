@@ -24,7 +24,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/io.h>
 #include <linux/usb/android_composite.h>
-
+#include <linux/usb/f_accessory.h>
 #include <linux/usb/musb.h>
 #include <linux/pm_runtime.h>
 #include <asm/sizes.h>

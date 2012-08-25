@@ -984,7 +984,11 @@ static irqreturn_t isp_isr(int irq, void *_pdev)
 
 	spin_lock_irqsave(&isp->lock, flags);
 	wait_hs_vs = bufs->wait_hs_vs;
+#ifdef CONFIG_MACH_SAMSUNG_P1WIFI
+	if (irqstatus & CCDC_VD0 && bufs->wait_hs_vs) 	//NCB-TI CSR OMAPS00228014 -- Fix
+#else
 	if (irqstatus & HS_VS /* CCDC_VD0 */&& bufs->wait_hs_vs) 	//NCB-TI CSR OMAPS00228014 -- Fix
+#endif
 		bufs->wait_hs_vs--;
 
 	/* Decrement value also with CSI2 Rx only case*/

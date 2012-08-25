@@ -430,10 +430,18 @@ config APANIC_PLABEL
 	 If your platform uses a different flash partition label for storing
  	 crashdumps, enter it here.
 
+config 30PIN_CONN
+        tristate "Accessory detection driver"
+        depends on I2C
+        default n
+        help
+         Provides support for detecting Accessory,such as TA, Keyboard
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
 source "drivers/misc/iwmc3200top/Kconfig"
 source "drivers/misc/ti-st/Kconfig"
+source "drivers/misc/level/Kconfig"
 
 endif # MISC_DEVICES

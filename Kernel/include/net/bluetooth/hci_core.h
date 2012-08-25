@@ -200,6 +200,8 @@ struct hci_conn {
 	void		*priv;
 
 	struct hci_conn	*link;
+	struct hci_flowspec flowspec; //BT_TIK 2011.09.23 SH : QoS patch from IL
+
 };
 
 extern struct hci_proto *hci_proto[];
@@ -428,6 +430,7 @@ int hci_get_conn_list(void __user *arg);
 int hci_get_conn_info(struct hci_dev *hdev, void __user *arg);
 int hci_get_auth_info(struct hci_dev *hdev, void __user *arg);
 int hci_inquiry(void __user *arg);
+int hci_set_flowspec(void __user *arg); //BT_TIK 2011.09.23 SH : QoS patch from IL
 
 void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb);
 

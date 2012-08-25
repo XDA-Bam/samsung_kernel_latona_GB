@@ -284,6 +284,17 @@ static void hci_encrypt_req(struct hci_dev *hdev, unsigned long opt)
 	hci_send_cmd(hdev, HCI_OP_WRITE_ENCRYPT_MODE, 1, &encrypt);
 }
 
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+static void hci_setflowspec_req(struct hci_dev *hdev, unsigned long opt)
+{
+	BT_DBG("%s ", hdev->name);
+
+	/* Set flow specification */
+	hci_send_cmd(hdev, HCI_OP_SET_FLOW_SPEC,
+			sizeof(struct hci_cp_flowspec), (void*) opt);
+}
+//BT_TIK 2011.09.23 SH End
+
 static void hci_linkpol_req(struct hci_dev *hdev, unsigned long opt)
 {
 	__le16 policy = cpu_to_le16(opt);
@@ -464,6 +475,64 @@ done:
 	hci_dev_put(hdev);
 	return err;
 }
+
+
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+int hci_set_flowspec(void __user *arg)
+{
+	struct hci_flowspec_req u_req;
+	struct hci_cp_flowspec cp_req;
+	struct hci_dev *hdev;
+	struct hci_conn *conn;
+	int err;
+
+	if (copy_from_user(&u_req, arg, sizeof(u_req)))
+		return -EFAULT;
+
+	hdev = hci_dev_get(u_req.dev_id);
+	if (!hdev) {
+		return -ENODEV;
+	}
+
+	hci_dev_lock(hdev);
+
+	conn = hci_conn_hash_lookup_handle(hdev, u_req.handle);
+	if (!conn || conn->state != BT_CONNECTED) {
+		hci_dev_unlock(hdev);
+		hci_dev_put(hdev);
+		return -EPERM;
+	}
+	hci_dev_unlock(hdev);
+
+	cp_req.handle = cpu_to_le16(u_req.handle);
+	cp_req.flags = 0;
+	cp_req.flowspec.flowdir = u_req.flowspec.flowdir;
+	cp_req.flowspec.latency =
+			cpu_to_le32(u_req.flowspec.latency);
+	cp_req.flowspec.peak_bandwidth = cpu_to_le32(u_req.flowspec.peak_bandwidth);
+	cp_req.flowspec.service_type = u_req.flowspec.service_type;
+	cp_req.flowspec.token_rate = cpu_to_le32(u_req.flowspec.token_rate);
+	cp_req.flowspec.bucket_size = cpu_to_le32(u_req.flowspec.bucket_size);
+
+	err = hci_request(hdev, hci_setflowspec_req,
+			//(unsigned long)&cp_req, msecs_to_jiffies(HCI_CMD_TIMEOUT));
+			(unsigned long)&cp_req, msecs_to_jiffies(5000)); // BT_TIK 2011.09.23 SH : HCI_CMD_TIMEOUT is not declaired. Put 5000 instead of it temporary.
+
+	if ( !err )
+	{
+		hci_dev_lock(hdev);
+		conn = hci_conn_hash_lookup_handle(hdev, u_req.handle);
+		if (conn) {
+			err = copy_to_user(&((struct hci_flowspec_req *)arg)->flowspec,
+					&conn->flowspec, sizeof(conn->flowspec)) ? -EFAULT : 0;
+		}
+		hci_dev_unlock(hdev);
+	}
+
+	hci_dev_put(hdev);
+	return err;
+}
+//BT_TIK 2011.09.23 SH End
 
 /* ---- HCI ioctl helpers ---- */
 

@@ -3267,7 +3267,7 @@ U8 read_mem(U16 start, U8 size, U8 *mem)
 				gpio_direction_input(OMAP_GPIO_TOUCH_INT);
 				gpio_set_value(OMAP_GPIO_TOUCH_EN, 1);
 				msleep(80); // recommended value
-				calibrate_chip();
+				//calibrate_chip(); // Removed. When i2c error occur, this function call read_mem() as Recursion Function and then goes into infinite loop.
 			}
 
 			touch_state = 0;
@@ -3398,7 +3398,7 @@ U8 write_mem(U16 start, U8 size, U8 *mem)
 				gpio_direction_input(OMAP_GPIO_TOUCH_INT);
 				gpio_set_value(OMAP_GPIO_TOUCH_EN, 1);
 				msleep(80); // recommended value
-				calibrate_chip();
+				//calibrate_chip(); // Removed. When i2c error occur, this function call read_mem() as Recursion Function and then goes into infinite loop.
 			}
 
 			touch_state = 0;

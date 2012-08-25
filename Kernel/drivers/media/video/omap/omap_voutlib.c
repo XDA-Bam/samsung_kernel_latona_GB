@@ -40,7 +40,13 @@ static void omap_vout_init_max_downscale(void)
 	if (cpu_is_omap24xx())
 		max_downscale = 2;
 	else if (cpu_is_omap34xx())
+#ifdef CONFIG_MACH_SAMSUNG_P1WIFI
+//Change for OMAPS00250361
+		max_downscale = 2;
+//Change for OMAPS00250361
+#else
 		max_downscale = 4;
+#endif
 }
 
 #ifdef CONFIG_OMAP3_ISP_RESIZER_ON_OVERLAY

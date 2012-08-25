@@ -420,7 +420,13 @@ static void __disable_isp_rsz(struct omap_vout_device *vout, int line)
 		return;
 
 	vout->isprsz &= ~ISPRSZ_ENABLE;
+#ifdef CONFIG_MACH_SAMSUNG_P1WIFI
+//Change for OMAPS00250361
+	omap_vout_set_max_downscale(2);
+//Change for OMAPS00250361
+#else
 	omap_vout_set_max_downscale(4);
+#endif
 	printk(KERN_INFO "<%s> ISP resizer disabled from #%d\n",
 			__func__, line);
 

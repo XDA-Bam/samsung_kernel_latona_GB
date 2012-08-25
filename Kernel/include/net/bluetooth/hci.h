@@ -99,6 +99,7 @@ enum {
 #define HCISETLINKMODE	_IOW('H', 226, int)
 #define HCISETACLMTU	_IOW('H', 227, int)
 #define HCISETSCOMTU	_IOW('H', 228, int)
+#define HCISETFLOWSPEC  _IOW('H', 229, int) //BT_TIK 2011.09.23 SH : QoS patch from IL
 
 #define HCIINQUIRY	_IOR('H', 240, int)
 
@@ -226,6 +227,15 @@ enum {
 #define HCI_AT_DEDICATED_BONDING_MITM	0x03
 #define HCI_AT_GENERAL_BONDING		0x04
 #define HCI_AT_GENERAL_BONDING_MITM	0x05
+
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+/* Flow specification definitions */
+#define HCI_FS_SERVICETYPE_NO_TRAFFIC  0x00
+#define HCI_FS_SERVICETYPE_BEST_EFFORT 0x01
+#define HCI_FS_SERVICETYPE_GUARANTEED  0x02
+#define HCI_FS_DIR_OUTGOING 0x0
+#define HCI_FS_DIR_INCOMING 0x1
+//BT_TIK 2011.09.23 SH End
 
 /* -----  HCI Commands ---- */
 #define HCI_OP_INQUIRY			0x0401
@@ -394,6 +404,7 @@ struct hci_cp_exit_sniff_mode {
 	__le16   handle;
 } __attribute__ ((packed));
 
+//#define HCI_OP_SET_FLOW_SPEC		0x0807 //BT_TIK 2011.09.23 SH : QoS patch from IL
 #define HCI_OP_ROLE_DISCOVERY		0x0809
 struct hci_cp_role_discovery {
 	__le16   handle;
@@ -403,6 +414,32 @@ struct hci_rp_role_discovery {
 	__le16   handle;
 	__u8     role;
 } __attribute__ ((packed));
+
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+#define HCI_OP_SET_FLOW_SPEC		0x0810
+struct hci_qos {
+	__u8     service_type;
+	__u32    token_rate;
+	__u32    peak_bandwidth;
+	__u32    latency;
+	__u32    delay_variation;
+} __attribute__ ((packed));
+
+struct hci_flowspec {
+	__u8	flowdir;
+	__u8    service_type;
+	__u32   token_rate;
+	__u32   bucket_size;
+	__u32   peak_bandwidth;
+	__u32   latency;
+} __attribute__ ((packed));
+
+struct hci_cp_flowspec {
+	__u16	handle;
+	__u8	flags;
+	struct hci_flowspec	flowspec;
+} __attribute__ ((packed));
+//BT_TIK 2011.09.23 SH End
 
 #define HCI_OP_SWITCH_ROLE		0x080b
 struct hci_cp_switch_role {
@@ -675,6 +712,8 @@ struct hci_ev_remote_version {
 } __attribute__ ((packed));
 
 #define HCI_EV_QOS_SETUP_COMPLETE	0x0d
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+/*
 struct hci_qos {
 	__u8     service_type;
 	__u32    token_rate;
@@ -682,6 +721,8 @@ struct hci_qos {
 	__u32    latency;
 	__u32    delay_variation;
 } __attribute__ ((packed));
+*/
+//BT_TIK 2011.09.23 SH End
 struct hci_ev_qos_setup_complete {
 	__u8     status;
 	__le16   handle;
@@ -758,6 +799,16 @@ struct hci_ev_pscan_rep_mode {
 	bdaddr_t bdaddr;
 	__u8     pscan_rep_mode;
 } __attribute__ ((packed));
+
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+#define HCI_EV_FLOWSPEC_COMPLETE	0x21
+struct hci_ev_flowspec_complete {
+	__u8	status;
+	__le16	handle;
+	__u8	flags;
+	struct hci_flowspec	flowspec;
+} __packed;
+//BT_TIK 2011.09.23 SH End
 
 #define HCI_EV_INQUIRY_RESULT_WITH_RSSI	0x22
 struct inquiry_info_with_rssi {
@@ -1041,5 +1092,17 @@ struct hci_inquiry_req {
 	__u8  num_rsp;
 };
 #define IREQ_CACHE_FLUSH 0x0001
+
+//BT_TIK 2011.09.23 SH Start : QoS patch from IL
+struct hci_flowspec_req {
+//	__u16			dev_id;
+//	__u16			handle;
+//	__u8			flowdir;
+//	struct hci_qos	flowspec;
+	__u16	dev_id;
+	__u16	handle;
+	struct hci_flowspec	flowspec;
+} __packed;
+//BT_TIK 2011.09.23 SH End
 
 #endif /* __HCI_H */
