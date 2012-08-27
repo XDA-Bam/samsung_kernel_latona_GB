@@ -47,14 +47,14 @@
 #endif
 
 #ifdef CONFIG_SVNET_WHITELIST
-#include <linux/phone_svn/portlist.h>
+#include "portlist.h"
 #endif /* CONFIG_SVNET_WHITELIST */
 
 #define DRVNAME "modemctl"
 
 //#define USE_EARLYSUSPEND_TO_CTRL_PDAACTIVE_LOW
-//#define USE_LATERESUME_TO_CTRL_PDAACTIVE_HIGH
-//#define USE_EARLYSUSPEND_TO_CTRL_WHITELIST
+#define USE_LATERESUME_TO_CTRL_PDAACTIVE_HIGH
+#define USE_EARLYSUSPEND_TO_CTRL_WHITELIST
 
 //#define SIM_DEBOUNCE_TIME_HZ	(HZ)
 
@@ -969,7 +969,6 @@ static int modemctl_suspend(struct platform_device *pdev, pm_message_t state)
 	pda_off(mc);
 #endif
 
-#if 0
 #if defined( CONFIG_SVNET_WHITELIST ) && \
 	!defined( USE_EARLYSUSPEND_TO_CTRL_WHITELIST )
 	// call process white list
@@ -977,7 +976,6 @@ static int modemctl_suspend(struct platform_device *pdev, pm_message_t state)
 	if( unlikely( retval !=0 ) ) {
 		printk( "fail to send whitelist : %d\n", retval );
 	} 
-#endif
 #endif
 
 	return 0;
