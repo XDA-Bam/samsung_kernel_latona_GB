@@ -1100,10 +1100,9 @@ int ispccdc_s_pipeline(struct isp_ccdc_device *isp_ccdc,
 			       OMAP3_ISP_IOMEM_CCDC,
 			       ISPCCDC_VDINT);
 	}
-#if 0 /* For the test */
-	else if(pipe->ccdc_out_h == 480 && pipe->ccdc_out_w == 800 && sensor_index == 1)
+	else if(pipe->ccdc_out_h == 240 && pipe->ccdc_out_w == 320 && sensor_index == 2)
 	{
-		isp_reg_writel(dev,(((pipe->ccdc_out_h - 90) &
+		isp_reg_writel(dev,(((pipe->ccdc_out_h - 30) &
 				 ISPCCDC_VDINT_0_MASK) <<
 				ISPCCDC_VDINT_0_SHIFT) |
 			       ((ISPCCDC_VDINT_1_MASK) <<
@@ -1111,7 +1110,16 @@ int ispccdc_s_pipeline(struct isp_ccdc_device *isp_ccdc,
 			       OMAP3_ISP_IOMEM_CCDC,
 			       ISPCCDC_VDINT);
 	}
-#endif
+	else if(pipe->ccdc_out_h == 288 && pipe->ccdc_out_w == 352 && sensor_index == 2)
+	{
+		isp_reg_writel(dev,(((pipe->ccdc_out_h - 30) &
+				 ISPCCDC_VDINT_0_MASK) <<
+				ISPCCDC_VDINT_0_SHIFT) |
+			       ((ISPCCDC_VDINT_1_MASK) <<
+				ISPCCDC_VDINT_1_SHIFT),
+			       OMAP3_ISP_IOMEM_CCDC,
+			       ISPCCDC_VDINT);
+	}
 	else if(pipe->ccdc_out_h == 720 && pipe->ccdc_out_w == 1280)
 	{
 		isp_reg_writel(dev,(((pipe->ccdc_out_h - 100) &

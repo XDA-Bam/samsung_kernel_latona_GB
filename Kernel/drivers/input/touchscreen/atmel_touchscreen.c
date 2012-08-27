@@ -809,7 +809,7 @@ void handle_multi_touch(uint8_t *atmel_msg)
 		}
 		else
 		{
-			printk("[TSP] exception case id[%d],x=%d,y=%d\n", id, x, y);
+			//printk("[TSP] exception case id[%d],x=%d,y=%d\n", id, x, y);
 			return;
 		}
 
@@ -823,7 +823,7 @@ void handle_multi_touch(uint8_t *atmel_msg)
 		input_sync(tsp.inputdevice);
 #if defined(CONFIG_SAMSUNG_KERNEL_DEBUG_USER)
 		if(prev_touch_count != touch_count) {
-			printk(KERN_DEBUG "[TSP] id[%d],x=%d,y=%d,%dpoint(s)\n", id, x, y, touch_count);
+			//printk(KERN_DEBUG "[TSP] id[%d],x=%d,y=%d,%dpoint(s)\n", id, x, y, touch_count);
 			prev_touch_count = touch_count;
 		}
 #endif
@@ -942,7 +942,7 @@ void read_func_for_only_single_touch(struct work_struct *work)
 			input_sync(tsp.inputdevice);
 			if(en_touch_log)
 			{
-				printk("[TSP][DOWN] id=%d, x=%d, y=%d, press=%d \n",(int)atmel_msg[0], x480, y800, press);
+				//printk("[TSP][DOWN] id=%d, x=%d, y=%d, press=%d \n",(int)atmel_msg[0], x480, y800, press);
 				en_touch_log = 0;
 			}
 		}else if(press == 0)
@@ -950,7 +950,7 @@ void read_func_for_only_single_touch(struct work_struct *work)
 			input_report_key(tsp.inputdevice, BTN_TOUCH, DEFAULT_PRESSURE_UP	);
 			input_report_abs(tsp.inputdevice, ABS_PRESSURE, DEFAULT_PRESSURE_UP);
 			input_sync(tsp.inputdevice);
-			printk("[TSP][UP] id=%d, x=%d, y=%d, press=%d \n",(int)atmel_msg[0], x480, y800, press);
+			//printk("[TSP][UP] id=%d, x=%d, y=%d, press=%d \n",(int)atmel_msg[0], x480, y800, press);
 			en_touch_log = 1;
 		}
 //		ret_val = MESSAGE_READ_OK;

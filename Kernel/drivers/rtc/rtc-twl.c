@@ -291,16 +291,9 @@ static int twl_rtc_read_time(struct device *dev, struct rtc_time *tm)
 	tm->tm_year = bcd2bin(rtc_data[5]) + 100;
 
 #if 1 /*   To restrict updated range by CDMA time  */
-	printk("[RTC] twl_rtc_read_time = %d-%02d-%02d %02d:%02d:%02d\n",
-		tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-
 	if ( tm->tm_year > 136 ) {
-		printk("[RTC] tm_year = %d\n", tm->tm_year);
-		tm->tm_year -= 30;
-		if(tm->tm_year > 136) {
-			pr_err("%s: Android time range is over !!!\n", __func__);
-			return -ENODATA; 
-		}
+		pr_err("%s: Android time range is over !!!\n", __func__);
+		return -ENODATA; 
 	}
 #endif
 

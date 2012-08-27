@@ -3247,34 +3247,21 @@ static int twl4030_set_voip_main_path(struct snd_kcontrol *kcontrol, struct snd_
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	voip_main_mode = ucontrol->value.integer.value[0];
 	
-	printk("twl4030_set_voip_main_path = %d playback deive %d  call device %d !!!\n", voip_main_mode,twl4030_playback_device,twl4030_call_device);
+	printk("twl4030_set_voip_main_path = %d !!!\n", voip_main_mode);
 	
 	switch(voip_main_mode)
 	{
 		case VOIP_MAIN_ON:
 			//twl4030_set_voipcall_path(kcontrol, ucontrol, VOIP_CALL);
-		        if(twl4030_call_device==0){
-		    	    set_codec_gain(codec, VOIP_CALL, twl4030_playback_device);
-                            max9877_set_force_out_mode(VOIP_CALL,twl4030_playback_device);
-                            twl4030_voip_device = twl4030_playback_device;
-	
-		        }else{
-                            set_codec_gain(codec, VOIP_CALL, twl4030_call_device);
-                            max9877_set_force_out_mode(VOIP_CALL,twl4030_call_device);
-                            twl4030_voip_device = twl4030_call_device;
-			
-		        }
+		    set_codec_gain(codec, VOIP_CALL, twl4030_playback_device);
+			max9877_set_force_out_mode(VOIP_CALL,twl4030_playback_device);
+			twl4030_voip_device = twl4030_playback_device;
 			//twl4030_playback_device = 0;
 			break;
 		case VOIP_MAIN_OFF:
 		default:
-			if(twl4030_call_device==0){
-			    set_codec_gain(codec, PLAY_BACK, twl4030_playback_device);
-                            max9877_set_force_out_mode(PLAY_BACK,twl4030_playback_device);
-			}else{
-                            set_codec_gain(codec, PLAY_BACK, twl4030_call_device);
-                            max9877_set_force_out_mode(PLAY_BACK,twl4030_call_device);
-			}
+			set_codec_gain(codec, PLAY_BACK, twl4030_playback_device);
+			max9877_set_force_out_mode(PLAY_BACK,twl4030_playback_device);
 			//twl4030_set_idle_mode(kcontrol,ucontrol,IDLE_MODE);
 			//max9877_set_force_out_mode(VOIP_CALL,OFF);
 			break;

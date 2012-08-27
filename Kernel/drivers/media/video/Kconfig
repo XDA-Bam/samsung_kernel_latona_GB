@@ -696,7 +696,7 @@ config VIDEO_ISIF
 
 source "drivers/media/video/omap/Kconfig"
 
-#source "drivers/media/video/omapgfx/Kconfig"
+source "drivers/media/video/omapgfx/Kconfig"
 
 source "drivers/media/video/bt8xx/Kconfig"
 

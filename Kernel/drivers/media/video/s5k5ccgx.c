@@ -2008,12 +2008,6 @@ static int s5k5ccgx_set_flash_capture(s32 value)
 
   dprintk(CAM_INF, S5K5CCGX_MOD_NAME "s5k5ccgx_set_flash_capture is called...[%d]\n",value);
 
-  if(value == 4){ /* Camera FLASH TORCH ON */
-	  s5k5ccgx_set_flash(100);
-  }
-  else if(value == 5) {
-	  s5k5ccgx_set_flash(0); /* Camera FLASH TORCH OFF */
-  }
 #if 0
   switch(value)
   {
@@ -4574,8 +4568,6 @@ static int ioctl_g_exif(struct v4l2_int_device *s, struct v4l2_exif *exif)
 	err=s5k5ccgx_i2c_read_multi(client, 0x0F12, &shutter_read_value);
 
 	exif->shutter_speed_numerator = (shutter_read_value * 10) / 4 ; // (ms) -> us
-
-	exif->flash =  sensor->flashstate;
 
   	dprintk(CAM_DBG, S5K5CCGX_MOD_NAME "EXIF->shutter_speed: 0x%x\n", exif->shutter_speed_numerator);
 	

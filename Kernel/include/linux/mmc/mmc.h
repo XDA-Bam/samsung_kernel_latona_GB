@@ -271,6 +271,7 @@ struct _mmc_csd {
 #define EXT_CSD_SEC_FEATURE_SUPPORT 231 /* RO */
 #define EXT_CSD_TRIM_MULT       232 /* RO */
 #endif /* CONFIG_MMC_DISCARD */
+#define EXT_CSD_HPI			503
 
 /*
  * EXT_CSD field definitions

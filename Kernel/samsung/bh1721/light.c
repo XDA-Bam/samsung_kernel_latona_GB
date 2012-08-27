@@ -210,7 +210,7 @@ static DEVICE_ATTR(wake, S_IWUSR|S_IWGRP, NULL, bh1721_wake_store);
 static DEVICE_ATTR(data, S_IRUGO, bh1721_data_show, NULL);
 static DEVICE_ATTR(status, S_IRUGO, bh1721_status_show, NULL);
 //static DEVICE_ATTR(lux, S_IRUGO|S_IWUSR, bh1721_lux_show, NULL);
-static DEVICE_ATTR(testmode, 0664, bh1721_testmode_show, bh1721_testmode_store);
+static DEVICE_ATTR(testmode, 0666, bh1721_testmode_show, bh1721_testmode_store);
 
 static struct device_attribute dev_attr_light_sensor_lux = 
 	__ATTR(lux, S_IRUSR | S_IRGRP, bh1721_lux_show, NULL);

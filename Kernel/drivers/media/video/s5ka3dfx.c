@@ -372,7 +372,7 @@ static int s5ka3dfx_set_flip(s32 value)
 
   dprintk(CAM_INF, S5KA3DFX_MOD_NAME "s5ka3dfx_set_flip is called... value = %d\n", value);
 
-  switch(sensor->flip)
+  switch(value)
   {
     case S5KA3DFX_FLIP_NONE:
       for (i = 0; i < reg_flip_none_index; i++) 
@@ -822,7 +822,8 @@ static int s5ka3dfx_set_init(void)
   {
 	if(sensor->check_dataline)
 	{
-		for (i = 0; i < 5; i++) {
+		dprintk(CAM_INF, S5KA3DFX_MOD_NAME "dataline set\n");
+		for (i = 0; i < sizeof(s5ka3dfx_dataline)/sizeof(u32); i++) {
 			if(s5ka3dfx_set_data(client, s5ka3dfx_dataline[i]))
 				goto init_fail;
 		}	

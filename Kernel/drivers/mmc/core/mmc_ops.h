@@ -30,5 +30,7 @@ int mmc_spi_read_ocr(struct mmc_host *host, int highcap, u32 *ocrp);
 int mmc_spi_set_crc(struct mmc_host *host, int use_crc);
 int mmc_card_sleepawake(struct mmc_host *host, int sleep);
 
+int mmc_send_lock_cmd(struct mmc_host *host, int lock);
+
 #endif
 

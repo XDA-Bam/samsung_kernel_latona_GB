@@ -709,7 +709,7 @@ int QT602240_KeyArrary_Config_Init(struct qt602240_data *data)
 #ifdef CONFIG_TARGET_LOCALE_USAGSM
     keyarray_config.tchthr = 15;        //25
 #else
-    keyarray_config.tchthr = 20;        //25
+    keyarray_config.tchthr = 25;        //25
 #endif
     keyarray_config.tchdi = 3;      
 

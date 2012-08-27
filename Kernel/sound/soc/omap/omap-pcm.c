@@ -222,9 +222,7 @@ static int omap_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	unsigned long flags;
 	int ret = 0;
 
-	printk("1. %s before lock %d\n", __func__, preempt_count());
 	spin_lock_irqsave(&prtd->lock, flags);
-	printk("2. %s after lock %d\n", __func__, preempt_count());
 #if 0
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
@@ -297,9 +295,7 @@ static int omap_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	}
 #endif
 
-	printk("3. %s before unlock %d\n", __func__, preempt_count());
 	spin_unlock_irqrestore(&prtd->lock, flags);
-	printk("4. %s after unlock %d\n", __func__, preempt_count());
 
 	return ret;
 }

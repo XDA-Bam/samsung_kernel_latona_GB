@@ -717,8 +717,7 @@ static const u32 reg_init_qcif_table[] =
 	0x4903,
 	0x4AFF,
 
-	0xef03,  //176X144
-	0x7000,
+	//QCIF 
 	0xef00,
 	0xd108,
 	0x7a03,
@@ -748,6 +747,8 @@ static const u32 reg_init_qcif_table[] =
 	0xc7b0,
 	0xc400,
 	0xc590,
+    0xef03,
+    0x7001,	
 };
 
 static const u32 reg_init_cif_table[] = 
@@ -1245,7 +1246,7 @@ static const u32 reg_init_cif_table[] =
 0x4AFF,
 
 0xef03,  //352X288
-0x7000,
+0x7001,
 0xef00,
 0xd108,
 0x7a03,
@@ -2298,7 +2299,7 @@ static const u32 reg_init_vga_table[] =
 0x4903,
 0x4AFF,
 0xef03,
-0x7001,
+0x7000,
 };
 
 static const u32 reg_init_qcif_vt_table[] = 
@@ -4836,6 +4837,7 @@ static const u32 reg_self_capture_table[] =
 0x0000, 
 };
 
+#if 0
 static const u32 s5ka3dfx_dataline[] = 
 {
 0xef00,
@@ -4844,6 +4846,51 @@ static const u32 s5ka3dfx_dataline[] =
 0xcb01,
 0xd108,
 };
+#else 
+static const u32 s5ka3dfx_dataline[] = 
+{
+0xef02,  //Analog setting
+0x13a0,  //Analog setting
+0x2353,  //Analog setting
+0x2624,  //Analog setting
+0x2c05,  //Analog setting
+0x0500,  //Analog setting
+0x0350,  //Analog setting
+0x240a,  //Analog setting
+0x0b82,  //Analog setting
+0x1eb7,  //Analog setting
+0x5605,  //Analog setting
+0x2896,  //Analog setting
+0x673c,  //Analog setting
+0x4b5c,  //Analog setting
+0xef01,
+0x70c3,  //Clock delay
+0xef03,
+0x50d2,  //Mclk
+0x0f31,  //Vblank Value
+0xef03,
+0x5f03,  //NT Cintr Max
+0x6002,  //PAL Cintr Max
+0x610f,  //NT shutter Max
+0x620c,  //PAL shutter Max
+0x6301,  //NT Vblank
+0x64E7,
+0x6501,  //NT Hblank
+0x66e7,
+0x6d65,  //AGC Min for suppress B
+0x6E40,  //Dgain Min
+0x6f5d,  //Dgain Max
+0x4800,  //NT Hblank
+0x499E,
+0x4c00,  //PAL Hblank
+0x4d9E,
+//0x0a01,  // s/w reset
+//0x0401,
+0xef00,
+0xcb01,
+0xd108,
+};
+#endif
 
 static const u32 s5ka3dfx_dataline_stop[] = 
 {	

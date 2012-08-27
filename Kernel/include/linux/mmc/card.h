@@ -66,6 +66,7 @@ struct mmc_ext_csd {
 	unsigned int		sec_erase_mult;	/* Secure erase multiplier */
 	unsigned int		trim_timeout;		/* In milliseconds */
 #endif /* CONFIG_MMC_DISCARD */
+	u8			hpi;
 };
 
 struct sd_scr {

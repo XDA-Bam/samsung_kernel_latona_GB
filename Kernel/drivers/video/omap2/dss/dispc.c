@@ -2379,7 +2379,7 @@ static void _dispc_set_rotation_attrs(enum omap_plane plane, u8 rotation,
 	if (color_mode == OMAP_DSS_COLOR_YUV2 ||
 			color_mode == OMAP_DSS_COLOR_UYVY) {
 		int vidrot = 0;
-//Patch for OMAPS00237522
+//Patch for OMAPS00237522            
 #ifdef NO_VRFB_ROT_PATCH // Tushar
 		switch (rotation) {
 		case OMAP_DSS_ROT_0:
@@ -2835,7 +2835,7 @@ static unsigned long calc_fclk_five_taps(enum omap_channel channel,
 		/* FIXME get real display PPL */
 //Patch for OMAPS00237522
 		unsigned int out_size = dispc_get_output_size(channel);
-		unsigned int ppl = FLD_VAL(out_size, 10, 0) + 1 ;
+		unsigned int ppl = FLD_VAL(out_size, 10, 0) + 1 ; 
 //Patch for OMAPS00237522
 		tmp = pclk * height * out_width;
 		do_div(tmp, 2 * out_height * ppl);
@@ -2907,13 +2907,7 @@ int dispc_scaling_decision(u16 width, u16 height,
 				u16 min_y_decim, u16 max_y_decim,
 				u16 *x_decim, u16 *y_decim, bool *three_tap)
 {
-#ifdef CONFIG_MACH_SAMSUNG_P1WIFI
-//Change for OMAPS00250361
-	int maxdownscale = cpu_is_omap24xx() ? 2 : 2;
-//Change for OMAPS00250361
-#else
 	int maxdownscale = cpu_is_omap24xx() ? 2 : 4;
-#endif
 	int bpp = color_mode_to_bpp(color_mode);
 
 	/*
@@ -3104,11 +3098,7 @@ static int _dispc_setup_plane(enum omap_plane plane,
 #ifdef CONFIG_ARCH_OMAP4
 	int maxdownscale = 4;
 #else
-#ifdef CONFIG_MACH_SAMSUNG_P1WIFI
-	int maxdownscale = cpu_is_omap34xx() ? 2 : 2;
-#else
 	int maxdownscale = cpu_is_omap34xx() ? 4 : 2;
-#endif
 #endif
 	bool fieldmode = 0;
 	int cconv = 0;
@@ -5177,8 +5167,8 @@ int dispc_init(struct platform_device *pdev)
 	rev = dispc_read_reg(DISPC_REVISION);
 	printk(KERN_INFO "OMAP DISPC rev %d.%d\n",
 		   FLD_GET(rev, 7, 4), FLD_GET(rev, 3, 0));
-		dispc_write_reg(DISPC_LINE_NUMBER, 0x95);	//swin.kim add
-
+		dispc_write_reg(DISPC_LINE_NUMBER, 0x95);	//swin.kim add 
+	
 #ifndef CONFIG_FB_OMAP_BOOTLOADER_INIT
 
 	enable_clocks(0);
@@ -5206,13 +5196,13 @@ void dispc_enable_plane(enum omap_plane plane, bool enable)
 	reduced_rate = 1;
 #endif
 	if(enable) {
-		vid_in_use = 1;
+		vid_in_use = 1;	
 	}
 	else {
 		vid_in_use = 0;
 	}
 
-	}
+	}	
 
 
 
@@ -5310,9 +5300,9 @@ int dispc_setup_wb(struct writeback_cache_data *wb)
 	s32 row_inc = 0;
 	s32 pix_inc;
 	int truncate = 0;
-//Change for OMAPS00239756
+//Change for OMAPS00239756  
 	bool vdma = false;
-//Change for OMAPS00239756
+//Change for OMAPS00239756  
 	DSSDBG("dispc_setup_wb\n");
 	DSSDBG("Maxds = %d\n", maxdownscale);
 	DSSDBG("out_width, width = %d, %d\n", (int) out_width, (int) width);
@@ -5499,11 +5489,11 @@ int dispc_setup_wb(struct writeback_cache_data *wb)
 	default:
 		;
 	}
-//Change for OMAPS00239756
+//Change for OMAPS00239756  
 	vdma = dispc_is_vdma_req(rotation, color_mode);
 	if (vdma)
 		three_taps = false;
-//Change for OMAPS00239756
+//Change for OMAPS00239756  
 	DSSDBG("WB ch_width %d ch_height %d out_ch_width %d out_ch_height %d",
 		ch_width, ch_height, out_ch_width, out_ch_height);
 
@@ -5517,9 +5507,9 @@ int dispc_setup_wb(struct writeback_cache_data *wb)
 
 	_dispc_set_scaling(plane, width, height,
 			out_width, out_height,
-//Change for OMAPS00239756
+//Change for OMAPS00239756  
 			0, three_taps, false, scale_x, scale_y, vdma);
-//Change for OMAPS00239756
+//Change for OMAPS00239756  
 	if (out_ch_width != out_width) {
 		/* this is true for YUV formats */
 		DSSDBG("scale uv set");
@@ -5598,10 +5588,10 @@ void modify_lcd_timing(int enable)
 	}
 	dispc_go(0);
 	enable_clocks(0);
-
+		
 }
 EXPORT_SYMBOL(modify_lcd_timing);
-#endif
+#endif	
 
 #ifdef LCD_REFRESH_CHANGE
 void reduce_refresh_rate(int enable)

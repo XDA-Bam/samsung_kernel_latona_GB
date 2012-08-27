@@ -222,10 +222,10 @@ static ssize_t store_batt_monitor_temp(struct kobject *kobj,
                     const char *buf, size_t size)
 {
     int flag;
-    
+
     sscanf( buf, "%d", &flag );
 
-    printk("[BM] change value %d\n",flag);
+    pr_info("[BM] change value %d\n",flag);
 
     sec_bci.battery.support_monitor_temp = flag;
     sec_bci.battery.support_monitor_timeout = flag;
@@ -241,7 +241,7 @@ static ssize_t store_batt_boot_complete(struct kobject *kobj,
     int flag;
 
     sscanf( buf, "%d", &flag );
-    printk("[BM] boot complete flag:%d, buf:%s, size:%d\n",flag, buf, size);
+    pr_info("[BM] boot complete flag:%d, buf:%s, size:%d\n",flag, buf, size);
 
     boot_complete = true;
 
@@ -333,16 +333,16 @@ static ssize_t store_event(struct kobject *kobj,
 		event_logging |= (0x1 << off);
 	else if(flag == 0)
 		event_logging &= ~(0x1 << off);
-	
-    printk("[BM] store_event offset=%d, value=%d\n", off, flag);
+
+    pr_info("[BM] store_event offset=%d, value=%d\n", off, flag);
     return size;
 }
 
 /* END of Event logging */
 
 int _charger_state_change_( int category, int value, bool is_sleep )
-{   
-    printk( "[BM] cate: %d, value: %d\n", category, value );
+{
+    pr_info( "[BM] cate: %d, value: %d\n", category, value );
 
     if( category == STATUS_CATEGORY_CABLE )
     {
@@ -588,21 +588,21 @@ int turn_resources_on_for_adc()
     ret = twl_i2c_read_u8( TWL4030_MODULE_MADC, &val, TWL4030_MADC_CTRL1 );
     val |= TWL4030_MADC_MADCON;
     ret = twl_i2c_write_u8( TWL4030_MODULE_MADC, val, TWL4030_MADC_CTRL1 );
-    
+
     if(device_config->TEMP_ADC_PORT != 0)
     {
         ret = regulator_enable( di->usb3v1 );
         if ( ret )
-            printk("[BM] Regulator 3v1 error!!\n");
+            pr_info("[BM] Regulator 3v1 error!!\n");
 
         ret = regulator_enable( di->usb1v8 );
         if ( ret )
-            printk("[BM] Regulator 1v8 error!!\n");
+            pr_info("[BM] Regulator 1v8 error!!\n");
 
         ret = regulator_enable( di->usb1v5 );
         if ( ret )
-            printk("[BM] Regulator 1v5 error!!\n");
-    }    
+            pr_info("[BM] Regulator 1v5 error!!\n");
+    }
 
     twl_i2c_write_u8( TWL4030_MODULE_PM_RECEIVER, 0x14, 0x7D/*VUSB_DEDICATED1*/ );
     twl_i2c_write_u8( TWL4030_MODULE_PM_RECEIVER, 0x0, 0x7E/*VUSB_DEDICATED2*/ );
@@ -665,10 +665,10 @@ static int get_elapsed_time_secs( unsigned long long *start )
 
     do_div(diff, 1000000000L);
 	/*
-    printk( KERN_DEBUG "[BM] now: %llu, start: %llu, diff:%d\n",
+    pr_info("[BM] now: %llu, start: %llu, diff:%d\n",
         now, *start, (int)diff );
 	*/
-    return (int)diff;       
+    return (int)diff;
 }
 
 static int t2adc_to_temperature( int value, int channel )
@@ -691,7 +691,7 @@ static int t2adc_to_temperature( int value, int channel )
         mvolt = 0;
     }
 
-    //printk("[BM] TEMP. adc: %d, mVolt: %dmA\n", value , mvolt );
+    //pr_info("[BM] TEMP. adc: %d, mVolt: %dmA\n", value , mvolt );
 
     // for ZEUS - VDD: 3000mV, Rt = ( 100K * Vadc  ) / ( VDD - 2 * Vadc )
     r = ( 100000 * mvolt ) / ( 3000 - 2 * mvolt );
@@ -710,7 +710,7 @@ static int t2adc_to_temperature( int value, int channel )
 
 static int do_fuelgauge_reset( void )
 {
-	printk("do_fuelgauge_reset\n");
+	pr_info("do_fuelgauge_reset\n");
     fuelgauge_quickstart();
     return 1;
 }
@@ -929,25 +929,25 @@ static int battery_monitor_core( bool is_sleep )
 
                 if ( sec_bci.battery.battery_temp >= stop_temperature_overheat) //CHARGE_STOP_TEMPERATURE_MAX )
                 {
-                	printk("[TA] Temperature is high (%d*)\n", sec_bci.battery.battery_temp);
+			pr_info("[TA] Temperature is high (%d*)\n", sec_bci.battery.battery_temp);
                     if ( sec_bci.battery.battery_health != POWER_SUPPLY_HEALTH_OVERHEAT )
                     {
                         sec_bci.battery.battery_health = POWER_SUPPLY_HEALTH_OVERHEAT;
 
-                        _battery_state_change_( STATUS_CATEGORY_TEMP, 
-                                    BATTERY_TEMPERATURE_HIGH, 
+                        _battery_state_change_( STATUS_CATEGORY_TEMP,
+                                    BATTERY_TEMPERATURE_HIGH,
                                     is_sleep );
                     }
                 }
                 else if ( sec_bci.battery.battery_temp <= CHARGE_STOP_TEMPERATURE_MIN )
                 {
-					printk("[TA] Temperature is low (%d*)\n", sec_bci.battery.battery_temp);
+					pr_info("[TA] Temperature is low (%d*)\n", sec_bci.battery.battery_temp);
                     if ( sec_bci.battery.battery_health != POWER_SUPPLY_HEALTH_COLD )
                     {
                         sec_bci.battery.battery_health = POWER_SUPPLY_HEALTH_COLD;
 
-                        _battery_state_change_( STATUS_CATEGORY_TEMP, 
-                                    BATTERY_TEMPERATURE_LOW, 
+                        _battery_state_change_( STATUS_CATEGORY_TEMP,
+                                    BATTERY_TEMPERATURE_LOW,
                                     is_sleep );
                     }
                 }
@@ -982,10 +982,10 @@ static int battery_monitor_core( bool is_sleep )
             sec_bci.battery.confirm_recharge++;
             if ( sec_bci.battery.confirm_recharge >= 2 )
             {
-                printk( "[BM] RE-charging vol rechg_voltage = %d\n", rechg_voltage);
-                sec_bci.battery.confirm_recharge = 0;   
-                _battery_state_change_( STATUS_CATEGORY_CHARGING, 
-                            POWER_SUPPLY_STATUS_RECHARGING_FOR_FULL, 
+                pr_info( "[BM] RE-charging vol rechg_voltage = %d\n", rechg_voltage);
+                sec_bci.battery.confirm_recharge = 0;
+                _battery_state_change_( STATUS_CATEGORY_CHARGING,
+                            POWER_SUPPLY_STATUS_RECHARGING_FOR_FULL,
                             is_sleep );
             }
         }
@@ -1007,7 +1007,7 @@ static void battery_monitor_work_handler( struct work_struct *work )
                             battery_monitor_work.work );
 
     #if 0
-    printk( "[BM] battery monitor [Level:%d, ADC:%d, TEMP.:%d, cable: %d] \n",\
+    pr_info( "[BM] battery monitor [Level:%d, ADC:%d, TEMP.:%d, cable: %d] \n",\
         get_battery_level_ptg(),\
         get_battery_level_adc(),\
         get_system_temperature(),\
@@ -1017,14 +1017,14 @@ static void battery_monitor_work_handler( struct work_struct *work )
     boot_monitor_count++;
     if(!boot_complete && boot_monitor_count >= 2)
     {
-        printk("[BM] boot complete \n");
+        pr_info("[BM] boot complete \n");
         boot_complete = true;
     }
 	if(sec_bci.charger.rechg_count > 0)
 		sec_bci.charger.rechg_count--;
 
 
-//	printk("[BM] MMC2_DAT0 : %x\n", omap_readw(0x4800215c));
+//	pr_info("[BM] MMC2_DAT0 : %x\n", omap_readw(0x4800215c));
 
     if ( device_config->MONITORING_SYSTEM_TEMP )
         sec_bci.battery.battery_temp = get_system_temperature( TEMP_DEG );
@@ -1077,8 +1077,8 @@ static void battery_monitor_work_handler( struct work_struct *work )
         }
     }
 
-    #if 1 
-    printk( "[BM] monitor BATT.(%d%%, %dmV, %d*, count=%d, charging=%d)\n", 
+    #if 1
+    pr_info( "[BM] monitor BATT.(%d%%, %dmV, %d*, count=%d, charging=%d)\n",
             sec_bci.battery.battery_level_ptg,
             sec_bci.battery.battery_level_vol,
             sec_bci.battery.battery_temp,
@@ -1086,7 +1086,7 @@ static void battery_monitor_work_handler( struct work_struct *work )
             sec_bci.charger.is_charging
             );
     #endif
-	//printk("[BM] adc 167 -> %d^, adc 198 -> %d^\n", t2adc_to_temperature(927, 0), t2adc_to_temperature(884, 0));
+	//pr_info("[BM] adc 167 -> %d^, adc 198 -> %d^\n", t2adc_to_temperature(927, 0), t2adc_to_temperature(884, 0));
 
     power_supply_changed( &di->sec_battery );
     power_supply_changed( &di->sec_ac );
@@ -1208,7 +1208,7 @@ static int samsung_battery_get_property( struct power_supply *psy,
             return -EINVAL;
     }
 
-    //printk("[BM] GET %d, %d  !!! \n", psp, val->intval );
+    //pr_info("[BM] GET %d, %d  !!! \n", psp, val->intval );
     return 0;
 }
 
@@ -1279,10 +1279,10 @@ static int __devinit battery_probe( struct platform_device *pdev )
     int i = 0;
 
     struct battery_device_info *di;
-    
-    printk( "[BM] Battery Probe... bootmode = %d\n\n");
 
-    this_dev = &pdev->dev; 
+    pr_info( "[BM] Battery Probe... bootmode = %d\n\n");
+
+    this_dev = &pdev->dev;
 
     di = kzalloc( sizeof(*di), GFP_KERNEL );
     if(!di)
@@ -1338,21 +1338,21 @@ static int __devinit battery_probe( struct platform_device *pdev )
     ret = power_supply_register( &pdev->dev, &di->sec_battery );
     if( ret )
     {
-        printk( "[BM] Failed to register main battery, charger\n" );
+        pr_info( "[BM] Failed to register main battery, charger\n" );
         goto batt_regi_fail1;
     }
 
     ret = power_supply_register( &pdev->dev, &di->sec_ac );
     if( ret )
     {
-        printk( "[BM] Failed to register ac\n" );
+        pr_info( "[BM] Failed to register ac\n" );
         goto batt_regi_fail2;
     }
 
     ret = power_supply_register( &pdev->dev, &di->sec_usb );
     if( ret )
     {
-        printk( "[BM] Failed to register usb\n" );
+        pr_info( "[BM] Failed to register usb\n" );
         goto batt_regi_fail3;
     }
 
@@ -1362,17 +1362,17 @@ static int __devinit battery_probe( struct platform_device *pdev )
     ret = sysfs_create_file( &di->sec_battery.dev->kobj, &batt_vol_toolow.attr );
     if ( ret )
     {
-        printk( "[BM] sysfs create fail - %s\n", batt_vol_toolow.attr.name );
+        pr_info( "[BM] sysfs create fail - %s\n", batt_vol_toolow.attr.name );
     }
 #endif
 
     for( i = 0; i < ARRAY_SIZE( batt_sysfs_testmode ); i++ )
     {
-        ret = sysfs_create_file( &di->sec_battery.dev->kobj, 
+        ret = sysfs_create_file( &di->sec_battery.dev->kobj,
                      &batt_sysfs_testmode[i].attr );
         if ( ret )
         {
-            printk( "[BM] sysfs create fail - %s\n", batt_sysfs_testmode[i].attr.name );
+            pr_info( "[BM] sysfs create fail - %s\n", batt_sysfs_testmode[i].attr.name );
         }
     }
 
@@ -1568,7 +1568,7 @@ static int __init battery_init( void )
 {
     int ret;
 
-    printk( "\n[BM] Battery Init.\n" );
+    pr_info( "\n[BM] Battery Init.\n" );
 
     sec_bci.ready = false;
 
@@ -1599,24 +1599,24 @@ static int __init battery_init( void )
     sec_bci.sec_battery_workq = create_singlethread_workqueue("sec_battery_workq");
 
     init_gptimer12();
-    printk( "[BM] Init Gptimer called \n" );
+    pr_info( "[BM] Init Gptimer called \n" );
 
     /* Get the charger driver */
     if( ( ret = charger_init() < 0 ) )
     {
-        printk( "[BM] Fail to get charger driver.\n" );
+        pr_info( "[BM] Fail to get charger driver.\n" );
         return ret;
     }
 
     /* Get the fuelgauge driver */
     if( ( ret = fuelgauge_init() < 0 ) )
     {
-        printk( "[BM] Fail to get fuelgauge driver.\n" );        
+        pr_info( "[BM] Fail to get fuelgauge driver.\n" );
         return ret;
     }
 
     wake_lock_init( &sec_bc_wakelock, WAKE_LOCK_SUSPEND, "samsung-battery" );
-	
+
     ret = platform_driver_register( &battery_platform_driver );
 
     return ret;
@@ -1631,9 +1631,9 @@ static void __exit battery_exit( void )
     fuelgauge_exit();
 
     finish_gptimer12();
-    
+
     platform_driver_unregister( &battery_platform_driver );
-    printk( KERN_ALERT "[BM] Battery Driver Exit.\n" );
+    pr_info("[BM] Battery Driver Exit.\n" );
 }
 
 module_exit( battery_exit );

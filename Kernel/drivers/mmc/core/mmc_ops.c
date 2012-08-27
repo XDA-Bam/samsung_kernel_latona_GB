@@ -639,6 +639,9 @@ int mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value)
 	if (err)
 		return err;
 
+	/*WA : add delay for 24nm iNAND which have FW defect.*/
+	mdelay(2);
+
 	/* Must check status to be sure of no errors */
 	do {
 		err = mmc_send_status(card, &status);
@@ -692,3 +695,87 @@ int mmc_send_status(struct mmc_card *card, u32 *status)
 	return 0;
 }
 
+	/* Lock/Unlock CMD */
+int mmc_send_lock_cmd(struct mmc_host *host, int lock)
+{
+	struct mmc_request mrq = {0};
+	struct mmc_command cmd = {0};
+	struct mmc_data data = {0};
+	struct scatterlist sg;
+	u8 *data_buf;
+	u32 status;
+	int err = 0;
+
+	/* Set data 1 */
+	data_buf = kmalloc(512, GFP_KERNEL);
+	if (!data_buf)
+		return -ENOMEM;
+
+	memset((void *)data_buf, 0, sizeof(data_buf));
+
+	if (lock) {
+		data_buf[0] = 0x05;		// lock
+	} else {
+		data_buf[0] = 0x02;		// unlock
+	}
+	data_buf[1] = 0x04;			// set passwd
+	data_buf[2] = 0x31;
+	data_buf[3] = 0x32;
+	data_buf[4] = 0x33;
+	data_buf[5] = 0x34;
+
+	/* Set command CMD42 */
+	mrq.cmd = &cmd;
+	mrq.data = &data;
+	cmd.opcode = MMC_LOCK_UNLOCK;
+	cmd.arg = 0;
+
+	cmd.flags = MMC_RSP_SPI_R1B | MMC_RSP_R1B | MMC_CMD_ADTC;
+
+	/* Set data 2 */
+	data.blksz = 512;
+	data.blocks = 1;
+	data.flags = MMC_DATA_WRITE;
+
+/*	
+	printk(KERN_DEBUG "[TEST] CMD42's buf data = 0x%x%x%x%x%x%x(%s).\n",
+			data_buf[0],
+			data_buf[1],
+			data_buf[2],
+			data_buf[3],
+			data_buf[4],
+			data_buf[5],
+			lock ? "lock" : "unlock");
+*/
+	/* Send CMD */
+	data.sg = &sg;
+	data.sg_len = 1;
+
+	mmc_set_data_timeout(&data, host->card);
+	
+	sg_init_one(&sg, data_buf, 512);
+	mmc_wait_for_req(host, &mrq);
+	kfree(data_buf);
+
+	if (cmd.error) {
+		printk(KERN_ERR "%s: CMD%d: Command Error, return %d.\n",
+				mmc_hostname(host),
+				cmd.opcode, cmd.error);
+		return cmd.error;
+	}
+	if (data.error) {
+		printk(KERN_ERR "%s: CMD%d: Data Error, return %d.\n",
+				mmc_hostname(host),
+				cmd.opcode, data.error);
+		return data.error;
+	}
+
+	/* check status */
+	do {
+		err = mmc_send_status(host->card, &status);
+		if (err)
+			return err;
+	} while (R1_CURRENT_STATE(status) == 7);
+
+	return err;
+}
