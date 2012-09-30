@@ -775,7 +775,7 @@ service servicemanager /system/bin/servicemanager
 
 service vold /system/bin/vold
     socket vold stream 0660 root mount
-    socket usbstorage stream 0660 root moun
+    socket usbstorage stream 0660 root mount
     ioprio be 2
     socket enc_report stream 0660 root mount
 
@@ -804,7 +804,7 @@ service DR-deamon /system/bin/drexe
     group system radio inet net_raw     
 
 service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-system-server
-    socket zygote stream 660
+    socket zygote stream 660 root system
     onrestart write /sys/android_power/request_state wake
     onrestart write /sys/power/state on
     onrestart restart media
