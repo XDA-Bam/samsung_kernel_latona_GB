@@ -102,7 +102,7 @@ enum {
 #define MAX_BUF_SIZE				2044
 #define DEF_BUF_SIZE				MAX_BUF_SIZE
 
-#define DEFAULT_ISR_WAKE_TIME	(HZ/2)
+#define DEFAULT_ISR_WAKE_TIME	(2*HZ)
 
 static struct spi_device *p_ipc_spi = NULL;
 
