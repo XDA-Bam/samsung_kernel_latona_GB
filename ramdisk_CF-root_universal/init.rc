@@ -209,7 +209,7 @@ on fs
     # mount yaffs2 mtd@cache /cache nosuid nodev
 
 # mount ext4 partitions
-    mount ext4 /dev/block/stl9 /system noatime nodiratime errors=continue nobh data=writeback barrier=0 noauto_da_alloc 
+    mount ext4 /dev/block/stl9 /system noatime errors=continue data=ordered noauto_da_alloc 
     mount ext4 /dev/block/stl9 /system ro remount
 
 # mount rfs partitions
@@ -249,14 +249,14 @@ on fs
 # We chown/chmod /data again so because mount is run as root + defaults
     exec smc_crypto_safe_mode_on
     mkdir /data
-    mount ext4 /dev/block/mmcblk0p3 /data nosuid nodev noatime nodiratime errors=continue nobh data=writeback barrier=0 noauto_da_alloc
+    mount ext4 /dev/block/mmcblk0p3 /data nosuid nodev noatime errors=continue data=ordered noauto_da_alloc
     mount rfs /dev/block/mmcblk0p3 /data nosuid nodev crypt check=no,iocharset=utf8
     chown system system /data
     chmod 0771 /data
 
 # SEC_SECURITYLAB_LATONA_DEVICE_ENCRYPTION: add crypt option
     mkdir /dbdata
-    mount ext4 /dev/block/stl10 /dbdata nosuid nodev noatime nodiratime errors=continue nobh data=writeback barrier=0 noauto_da_alloc
+    mount ext4 /dev/block/stl10 /dbdata nosuid nodev noatime errors=continue data=ordered noauto_da_alloc
     mount rfs /dev/block/stl10 /dbdata nosuid nodev crypt check=no,iocharset=utf8    
 #    mount rfs /dev/block/stl10 /dbdata nosuid nodev check=no,iocharset=utf8    
     chown system system /dbdata
@@ -315,7 +315,7 @@ on post-fs
     chmod 0770 /data/cache
 
 # We chown/chmod /cache again so because mount is run as root + defaults
-    mount ext4 /dev/block/stl11 /cache nosuid nodev noatime nodiratime errors=continue nobh data=writeback barrier=0 noauto_da_alloc
+    mount ext4 /dev/block/stl11 /cache nosuid nodev noatime errors=continue data=ordered noauto_da_alloc
     mount rfs /dev/block/stl11 /cache nosuid nodev check=no,iocharset=utf8
     chown system cache /cache
     chmod 0771 /cache 
@@ -927,7 +927,7 @@ on property:encryption.bootmode=remount
     # do not add here, "on property" tag area
 ####### data check
     # do not add here, "on property" tag area
-    mount ext4 /dev/block/mmcblk0p3 /data nosuid nodev noatime nodiratime errors=continue nobh data=writeback barrier=0 noauto_da_alloc
+    mount ext4 /dev/block/mmcblk0p3 /data nosuid nodev noatime errors=continue data=ordered noauto_da_alloc
     mount rfs /dev/block/mmcblk0p3 /data nosuid nodev usedm check=no,iocharset=utf8
 #    exec smc_crypto_safe_mode_off
     # do not add here, "on property" tag area
