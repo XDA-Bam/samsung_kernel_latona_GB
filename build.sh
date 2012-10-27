@@ -55,38 +55,38 @@ cp --remove-destination Kernel/fs/ext4/ext4.ko ramdisk_CF-root_universal/lib/mod
 echo "Press enter to strip the modules"
 read ANS
 cd ramdisk_clean/lib/modules/2.6.35.7/kernel/
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded crypto/pcbc.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/bluetooth/btwilink.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/misc/ti-st/st_drv.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/scsi/scsi_wait_scan.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/battery/samsung_battery.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/bma222/yas_acc_kernel_driver.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/fm_si4709/Si4709_driver.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/gp2a/gp2a.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/gps/gps.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/orientation/yas_ori_kernel_driver.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/param/param.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/vibetonz/vibetonz.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/yas529/yas_mag_kernel_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded crypto/pcbc.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded drivers/bluetooth/btwilink.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded drivers/misc/ti-st/st_drv.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded drivers/scsi/scsi_wait_scan.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/battery/samsung_battery.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/bma222/yas_acc_kernel_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/fm_si4709/Si4709_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/gp2a/gp2a.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/gps/gps.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/orientation/yas_ori_kernel_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/param/param.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/vibetonz/vibetonz.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/yas529/yas_mag_kernel_driver.ko
 
 cd ../../../../../
 cd ramdisk_CF-root_universal/lib/modules/2.6.35.7/kernel/
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded crypto/pcbc.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/bluetooth/btwilink.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/misc/ti-st/st_drv.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded drivers/scsi/scsi_wait_scan.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/battery/samsung_battery.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/bma222/yas_acc_kernel_driver.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/fm_si4709/Si4709_driver.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/gp2a/gp2a.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/gps/gps.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/orientation/yas_ori_kernel_driver.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/param/param.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/vibetonz/vibetonz.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded samsung/yas529/yas_mag_kernel_driver.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded fs/mbcache.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded fs/jbd2/jbd2.ko
-	/opt/arm-linux-eabi-4.6.2/bin/arm-eabi-strip --strip-unneeded fs/ext4/ext4.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded crypto/pcbc.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded drivers/bluetooth/btwilink.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded drivers/misc/ti-st/st_drv.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded drivers/scsi/scsi_wait_scan.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/battery/samsung_battery.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/bma222/yas_acc_kernel_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/fm_si4709/Si4709_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/gp2a/gp2a.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/gps/gps.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/orientation/yas_ori_kernel_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/param/param.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/vibetonz/vibetonz.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded samsung/yas529/yas_mag_kernel_driver.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded fs/mbcache.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded fs/jbd2/jbd2.ko
+	/opt/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-unneeded fs/ext4/ext4.ko
 
 echo "All done. Press enter to exit script."
 read ANS
