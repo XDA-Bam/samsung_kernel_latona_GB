@@ -1,0 +1,21 @@
+[device]
+# mount point	fstype		device			format option	mount option
+/efs		rfs		/dev/block/stl3		default		default
+/system		rfs		/dev/block/stl9		default		default
+/dbdata		ext4		/dev/block/stl10	ext4_16		default
+/cache		rfs		/dev/block/stl11	rfs16		default
+/sdcard		vfat		/dev/block/mmcblk0p1	default		default
+/data		ext4		/dev/block/mmcblk0p3	ext4_32		default
+
+[format]
+#index		option
+rfs16	"/sbin/fat.format -F 16 -s 1 -S 4096"
+rfs32	"/sbin/fat.format -F 32 -s 4 -S 4096"
+ext4_4	"/sbin/mkfs.ext4 -T ext4 -b 4096 -m 0 -J size=4 -O ^resize_inode,^ext_attr,^huge_file,^has_journal"
+ext4_16	"/sbin/mkfs.ext4 -T ext4 -b 4096 -m 0 -J size=16 -O ^resize_inode,^ext_attr,^huge_file"
+ext4_32	"/sbin/mkfs.ext4 -T ext4 -b 4096 -m 0 -J size=32 -O ^resize_inode,^ext_attr,^huge_file"
+
+[mount]
+#index		flags					options
+rfs_opt1	nosuid,noatime,nodev,nodiratime		"check=no"
+rfs_opt2	ro,nosuid,nodev				"check=no"

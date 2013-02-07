@@ -1,0 +1,40 @@
+#!/sbin/ext/busybox sh
+
+/sbin/ext/busybox mount -t rootfs -o remount,rw rootfs
+/sbin/ext/busybox ln -s /sbin/recovery /sbin/busybox
+
+/sbin/ext/busybox ln -s /sbin/busybox /sbin/sh
+
+/sbin/ext/busybox rm /emmc
+/sbin/ext/busybox mkdir /emmc
+/sbin/ext/busybox chmod 777 /emmc
+
+/sbin/ext/busybox rm /sdcard
+/sbin/ext/busybox mkdir /sdcard
+/sbin/ext/busybox chmod 777 /sdcard
+
+#/sbin/ext/busybox rm /etc
+#/sbin/ext/busybox mkdir /etc
+#/sbin/ext/busybox cat /res/etc/recovery.fstab > /etc/recovery.fstab
+
+start adbd
+
+/sbin/ext/busybox rm /cache
+/sbin/ext/busybox mkdir /cache
+/sbin/ext/busybox chmod 777 /cache
+/sbin/ext/busybox mount -t ext4 /dev/block/stl11 /cache >> /dev/null 2>&1
+/sbin/ext/busybox mount -t rfs /dev/block/stl11 /cache >> /dev/null 2>&1
+
+#fix_permissions patch
+/sbin/ext/busybox sh /sbin/boot/fix_permissions-patch.sh
+
+if /sbin/ext/busybox [ -f /cache/recovery/command ];
+then
+  /sbin/ext/busybox mkdir -p /cache/svox
+  /sbin/ext/busybox cp /res/keys-samsung /res/keys
+  recovery-samsung
+else
+  echo 1 > /sbin/recovery-is-running
+  /sbin/ext/busybox sh /sbin/boot/bbsymlinks.sh
+  recovery
+fi;

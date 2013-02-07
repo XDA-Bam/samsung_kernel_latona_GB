@@ -1,0 +1,169 @@
+##
+# Copyright (C) 2010-2011, Samsung Electronics, Co., Ltd. All Rights Reserved.
+#  Written by System S/W Group, Open OS S/W R&D Team,
+#  Mobile Communication Division.
+##
+
+#==============================================================================
+# Trigger : early-init
+#==============================================================================
+on early-init
+
+# load linux-kernel modules
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/drivers/fsr/fsr.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/drivers/fsr/fsr_stl.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/fs/rfs/rfs_glue.ko
+    insmod /lib/modules/2.6.35.7/kernel/samsung/rfs_fsr/fs/rfs/rfs_fat.ko
+
+    insmod /lib/modules/2.6.35.7/kernel/samsung/battery/samsung_battery.ko
+
+    insmod /lib/modules/2.6.35.7/kernel/fs/mbcache.ko
+    insmod /lib/modules/2.6.35.7/kernel/fs/jbd2/jbd2.ko
+    insmod /lib/modules/2.6.35.7/kernel/fs/ext4/ext4.ko
+
+    start ueventd
+
+#==============================================================================
+# Trigger : init
+#==============================================================================
+on init
+
+sysclktz 0
+
+loglevel 3
+
+# setup the global environment
+    export PATH /sbin:/system/bin
+    export LD_LIBRARY_PATH /system/lib
+    export ANDROID_BOOTLOGO 0
+    export ANDROID_ROOT /system
+
+    mkdir /mnt 0775 root system
+    mkdir /system
+    mkdir /data 0771 system system
+ 
+    # Secure container public mount points.
+    mkdir /mnt/asec  0700 root system
+    mount tmpfs tmpfs /mnt/asec mode=0755,gid=1000
+
+# add opps panic    
+    write /proc/sys/kernel/panic_on_oops 1
+ 
+# make debug directory for debugfs
+    # Mount Debug file system for enabling Power Management features
+    mkdir /debug
+    mount debugfs debugfs /debug
+
+#==============================================================================
+# Trigger : early-fs
+#==============================================================================
+#on early-fs
+
+#==============================================================================
+# Trigger : fs
+#==============================================================================
+on fs
+# mount rfs partitions
+    mount rfs /dev/block/stl9 /system check=no,iocharset=utf8
+    mount ext4 /dev/block/stl9 /system
+    mount rfs /dev/block/stl9 /system ro remount
+
+# We chown/chmod /data again so because mount is run as root + defaults
+#    mount rfs /dev/block/mmcblk0p3 /data nosuid nodev check=no,iocharset=utf8
+
+# We chown/chmod /data again so because mount is run as root + defaults
+    mount rfs /dev/block/stl10 /data nosuid nodev check=no,iocharset=utf8    
+    mount ext4 /dev/block/stl10 /data nosuid nodev noatime
+
+# mount param partition
+    insmod /lib/modules/2.6.35.7/kernel/samsung/j4fs/j4fs.ko
+    mkdir /mnt/.lfs 0755 root root
+    mount j4fs /dev/block/stl6 /mnt/.lfs
+    insmod /lib/modules/2.6.35.7/kernel/samsung/param/param.ko
+
+#==============================================================================
+# Trigger : post-fs
+#==============================================================================
+on post-fs
+    # once everything is setup, no need to modify /
+    mount rootfs rootfs / ro remount
+
+# create log system 
+    chmod 0777 /data/log
+    chmod 0777 /data/anr	
+
+# btips 2.22.33 Start RFKILL
+    chmod 0770 sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    write sys/class/rfkill/rfkill0/state 0
+# btips 2.22.33 end
+
+# install switch_sio driver
+    insmod /lib/modules/2.6.32.9/kernel/drivers/switch/switch_sio.ko
+
+
+    # Enabling sleep in idle path
+    write /debug/pm_debug/sleep_while_idle 1
+
+    # Enabling Voltage OFF in idle path
+    write /debug/pm_debug/voltage_off_while_idle 1
+
+    # Enabling OFF mode
+    write /debug/pm_debug/enable_off_mode 1
+
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor powersave
+
+    # Permissions for System Server and daemons.
+    #chown system system /sys/class/leds/lcd-backlight/brightness
+    chown system system /sys/class/backlight/omap_bl/brightness
+
+#==============================================================================
+# Trigger : early-boot
+#==============================================================================
+#on early-boot
+
+#==============================================================================
+# Trigger : boot
+#==============================================================================
+on boot
+# basic network init
+    ifup lo
+    hostname localhost
+    domainname localdomain
+
+    class_start default
+
+service debuggerd /system/bin/debuggerd
+
+## Daemon processes to be run by init.
+##
+service ueventd /sbin/ueventd
+    critical
+
+service console /system/bin/sh
+    console
+
+on property:ro.secure=0
+    start console
+
+# adbd is controlled by the ro.secure system property
+service adbd /sbin/adbd
+    disabled
+
+on property:ro.secure=0
+    start adbd
+
+service playlpm /system/bin/playlpm
+    user root
+
+service immvibed /system/bin/immvibed 
+    oneshot
+
+service lpmkey /system/bin/charging_mode
+    user root
+
+on property:persist.service.adb.enable=1
+    start adbd
+
+on property:persist.service.adb.enable=0
+    stop adbd

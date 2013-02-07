@@ -1,0 +1,61 @@
+#!/sbin/ext/busybox sh
+
+# Programs needed
+ECHO="busybox echo"
+GREP="busybox grep"
+MOUNT="busybox mount"
+UMOUNT="busybox umount"
+TEST="busybox test"
+SH="busybox sh"
+LN="busybox ln"
+
+# Initialise vars
+DATAMOUNT=0
+DATADATAMOUNT=0
+
+ fp_parseargs()
+{
+   # Parse options
+   while $TEST $# -ne 0; do
+      case "$1" in
+         -V)
+            $SH /sbin/fix_permissions_script -V
+            exit 0
+         ;;
+         -h)
+            $SH /sbin/fix_permissions_script -h
+            exit 0
+         ;;
+         -*)
+            $ECHO "$0: unknown option $1"
+            $ECHO
+            $SH /sbin/fix_permissions_script -USAGE
+            exit 1
+         ;;
+      esac
+      shift;
+   done
+}
+
+fp_parseargs $@
+if $TEST $( $GREP -c " /datadata " "/proc/mounts" ) -eq 0; then
+   $MOUNT /datadata > /dev/null 2>&1
+   DATADATAMOUNT=1
+fi
+if $TEST $( $GREP -c " /data " "/proc/mounts" ) -eq 0; then
+   $MOUNT /data > /dev/null 2>&1
+   DATAMOUNT=1
+fi
+
+if $TEST ! -f /data/system/packages.xml; then
+   $LN -s /dbdata/system/packages.xml /data/system/packages.xml;
+fi
+
+$SH /sbin/fix_permissions_script $@
+
+if $TEST $DATADATAMOUNT -eq 1; then
+   $UMOUNT /datadata > /dev/null 2>&1
+fi
+if $TEST $DATAMOUNT -eq 1; then
+   $UMOUNT /datadata > /dev/null 2>&1
+fi
